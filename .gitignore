@@ -1,0 +1,45 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Docker
+*.log
+docker-compose.override.yml
+
+# Vendored dependencies (re-cloned via scripts)
+radiusdesk/rdcore/
+
+# Database data and Docker volumes
+mariadb-data/
+redis-data/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+
+# Build artifacts
+dist/
+build/
+*.tar.gz
+
+# Keep vendor pins
+!VENDOR_PINS.md

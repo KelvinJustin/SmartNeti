@@ -1,0 +1,132 @@
+services:
+  # MariaDB database for RadiusDesk
+  rdmariadb:
+    image: docker.io/bitnami/mariadb:10.5
+    container_name: radiusdesk-mariadb
+    restart: unless-stopped
+    environment:
+      - "ALLOW_EMPTY_PASSWORD=yes"
+      - "MARIADB_USER=rd"
+      - "MARIADB_DATABASE=rd"
+      - "MARIADB_PASSWORD=rd"
+    volumes:
+      - ./docker/my_custom.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
+      - rd_data:/bitnami/mariadb
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    networks:
+      - smartneti
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RadiusDesk web server + FreeRADIUS
+  radiusdesk:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile-radiusdesk
+    container_name: radiusdesk
+    restart: unless-stopped
+    depends_on:
+      rdmariadb:
+        condition: service_healthy
+    environment:
+      - "PHP_INI_SCAN_DIR=:/p/gd"
+      - "PHP.cgi.fix_pathinfo=1"
+      - "PHP_SELF=/index.php"
+      - "PHP_INI_SCAN_DIR=:/p/sqlite3"
+    volumes:
+      - rd_data:/bitnami/mariadb
+    networks:
+      - smartneti
+    ports:
+      - "80:80"
+      - "1812:1812/udp"
+      - "1813:1813/udp"
+
+  # Redis queue for payment webhooks and session jobs
+  redis:
+    image: docker.io/redis:7-alpine
+    container_name: smartneti-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - smartneti
+    ports:
+      - "6379:6379"
+
+  # SmartNeti API service
+  smartneti-api:
+    image: docker.io/node:20-alpine
+    container_name: smartneti-api
+    restart: unless-stopped
+    depends_on:
+      - rdmariadb
+      - redis
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    networks:
+      - smartneti
+    ports:
+      - "3001:3001"
+    command: ["sh", "-c", "npm install && npm run dev"]
+
+  # SmartNeti Session Manager
+  smartneti-session-manager:
+    image: docker.io/node:20-alpine
+    container_name: smartneti-session-manager
+    restart: unless-stopped
+    depends_on:
+      - rdmariadb
+      - redis
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    networks:
+      - smartneti
+    command: ["sh", "-c", "npm install && npm run session-manager"]
+
+  # SmartNeti Analytics service
+  smartneti-analytics:
+    image: docker.io/node:20-alpine
+    container_name: smartneti-analytics
+    restart: unless-stopped
+    depends_on:
+      - rdmariadb
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    networks:
+      - smartneti
+    ports:
+      - "3002:3002"
+    command: ["sh", "-c", "npm install && npm run analytics"]
+
+  # SmartNeti Frontend (React dev server)
+  smartneti-frontend:
+    image: docker.io/node:20-alpine
+    container_name: smartneti-frontend
+    restart: unless-stopped
+    depends_on:
+      - smartneti-api
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    networks:
+      - smartneti
+    ports:
+      - "3000:3000"
+    command: ["sh", "-c", "npm install && npm run dev"]
+
+volumes:
+  rd_data:
+  redis_data:
+
+networks:
+  smartneti:
+    driver: bridge
