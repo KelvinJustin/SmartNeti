@@ -48,25 +48,27 @@ const corsOptions = {
   credentials: true,
 };
 
-const redisClient = createClient({
-  socket: {
-    host: process.env.REDIS_HOST || 'redis',
-    port: Number(process.env.REDIS_PORT || 6379),
-  },
-});
-redisClient.connect().catch((err) => {
-  console.error('Redis connection failed:', err.message);
-});
+const useRedis = !!process.env.REDIS_HOST;
+let redisClient;
+let sessionStore;
+
+if (useRedis) {
+  redisClient = createClient({
+    socket: {
+      host: process.env.REDIS_HOST,
+      port: Number(process.env.REDIS_PORT || 6379),
+    },
+  });
+  redisClient.connect().catch((err) => {
+    console.error('Redis connection failed:', err.message);
+  });
+  sessionStore = new RedisStore({ client: redisClient });
+} else {
+  console.warn('[session] REDIS_HOST not set — using MemoryStore (sessions will not persist across restarts)');
+}
 
 app.use(helmet());
 app.use(cors(corsOptions));
-
-const useRedis = !!process.env.REDIS_HOST;
-const sessionStore = useRedis ? new RedisStore({ client: redisClient }) : undefined;
-
-if (!useRedis) {
-  console.warn('[session] REDIS_HOST not set — using MemoryStore (sessions will not persist across restarts)');
-}
 
 app.use(
   session({
