@@ -13,7 +13,6 @@ const pool = mysql.createPool({
   connectionLimit: 5,
   queueLimit: 0,
   connectTimeout: 10000,
-  acquireTimeout: 10000,
 });
 
 const rdPool = mysql.createPool({
@@ -27,7 +26,6 @@ const rdPool = mysql.createPool({
   connectionLimit: 5,
   queueLimit: 0,
   connectTimeout: 10000,
-  acquireTimeout: 10000,
 });
 
 module.exports = { pool, rdPool };
