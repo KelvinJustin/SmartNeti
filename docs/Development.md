@@ -88,6 +88,8 @@ docker-compose down
 docker-compose down -v
 ```
 
+> **Warning:** `docker-compose down -v` permanently deletes the named volumes `rd_data` and `redis_data`. This removes all RadiusDesk data, user accounts, hotspot settings, and Redis state. Only use it when you want a completely clean reset, such as after a failed database initialization or when testing fresh installs. On a development machine this is usually safe, but it will destroy any test data you created.
+
 ## Restarting After Code Changes
 
 ```bash
