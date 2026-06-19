@@ -40,6 +40,9 @@ const corsOptions = {
     if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('ngrok')) {
       return callback(null, true);
     }
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      return callback(null, true);
+    }
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
