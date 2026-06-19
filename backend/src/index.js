@@ -297,12 +297,14 @@ app.post('/api/v1/payments/webhook/:gateway', async (req, res) => {
 // Serve built frontend static files
 app.use(express.static(path.join(__dirname, '../dist')));
 
-// SPA fallback — serve index.html for any non-API route
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api/v1/')) {
+// SPA fallback — serve index.html for any non-API, non-asset route
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/v1/') || req.path.startsWith('/assets/')) {
     return res.status(404).json({ error: 'Not found' });
   }
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+  res.sendFile(path.join(__dirname, '../dist/index.html'), (err) => {
+    if (err) next(err);
+  });
 });
 
 app.use((err, req, res, next) => {
