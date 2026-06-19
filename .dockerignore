@@ -42,10 +42,8 @@ dist/
 build/
 *.tar.gz
 
-# Files not needed for radiusdesk image build
+# Files not needed for image build
 .git
-backend/
-frontend/
 docs/
 tests/
 payments/
@@ -58,15 +56,6 @@ scripts/
 
 # Duplicate database files
 docker/db_startup/
-
-# Keep only needed docker files for image build
-!docker/
-!docker/Dockerfile-radiusdesk
-!docker/default
-!docker/disable_strict_mode.cnf
-!docker/freeradius.service
-!docker/php.ini
-!docker/supervisord.conf
 
 # Keep vendor pins
 !VENDOR_PINS.md
