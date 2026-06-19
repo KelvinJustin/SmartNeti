@@ -8,6 +8,7 @@ const RedisStore = require('connect-redis').default;
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const path = require('path');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { pool, rdPool } = require('./db');
 const hotspotsRouter = require('./routes/hotspots');
@@ -298,19 +299,41 @@ app.post('/api/v1/payments/webhook/:gateway', async (req, res) => {
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // SPA fallback — serve index.html for any non-API, non-asset route
-app.get('*', (req, res, next) => {
+app.get('*', (req, res) => {
   if (req.path.startsWith('/api/v1/') || req.path.startsWith('/assets/')) {
     return res.status(404).json({ error: 'Not found' });
   }
-  res.sendFile(path.join(__dirname, '../dist/index.html'), (err) => {
-    if (err) next(err);
-  });
+  const indexPath = path.join(__dirname, '../dist/index.html');
+  if (!fs.existsSync(indexPath)) {
+    return res.status(404).json({ error: 'Frontend not built. dist/index.html missing.' });
+  }
+  res.sendFile(indexPath);
 });
 
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
+
+// Startup diagnostics for static files
+const distPath = path.join(__dirname, '../dist');
+if (fs.existsSync(distPath)) {
+  console.log(`[startup] dist exists at ${distPath}`);
+  try {
+    const files = fs.readdirSync(distPath);
+    console.log(`[startup] dist contents:`, files.slice(0, 20));
+    const assetsPath = path.join(distPath, 'assets');
+    if (fs.existsSync(assetsPath)) {
+      console.log(`[startup] assets contents:`, fs.readdirSync(assetsPath).slice(0, 20));
+    } else {
+      console.warn(`[startup] assets/ not found in dist`);
+    }
+  } catch (e) {
+    console.error('[startup] failed to read dist:', e.message);
+  }
+} else {
+  console.warn(`[startup] dist NOT FOUND at ${distPath}. Frontend will not be served.`);
+}
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`SmartNeti API listening on port ${PORT}`);
