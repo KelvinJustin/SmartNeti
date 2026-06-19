@@ -15,7 +15,7 @@ This file locks the exact versions of external dependencies used by SmartNeti. D
 
 ## Docker Images
 
-- **MariaDB:** bitnami/mariadb:10.5
+- **MariaDB:** mariadb:10.5 (official)
 - **Redis:** redis:7-alpine
 - **Nginx:** nginx:stable-alpine
 

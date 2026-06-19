@@ -28,8 +28,6 @@ redis-data/
 node_modules/
 npm-debug.log
 yarn-error.log
-package-lock.json
-frontend/vite.config.js.timestamp-*
 
 # Python
 __pycache__/
@@ -42,6 +40,32 @@ __pycache__/
 dist/
 build/
 *.tar.gz
+
+# Files not needed for radiusdesk image build
+.git
+backend/
+frontend/
+docs/
+tests/
+payments/
+analytics/
+mobile-api/
+installer/
+mikrotik/
+branding/
+scripts/
+
+# Duplicate database files
+docker/db_startup/
+
+# Keep only needed docker files for image build
+!docker/
+!docker/Dockerfile-radiusdesk
+!docker/default
+!docker/disable_strict_mode.cnf
+!docker/freeradius.service
+!docker/php.ini
+!docker/supervisord.conf
 
 # Keep vendor pins
 !VENDOR_PINS.md

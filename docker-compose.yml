@@ -1,27 +1,29 @@
 services:
   # MariaDB database for RadiusDesk
   rdmariadb:
-    image: docker.io/bitnami/mariadb:10.5
+    image: docker.io/library/mariadb:10.5
     container_name: radiusdesk-mariadb
     restart: unless-stopped
     environment:
-      - "ALLOW_EMPTY_PASSWORD=yes"
-      - "MARIADB_USER=rd"
-      - "MARIADB_DATABASE=rd"
-      - "MARIADB_PASSWORD=rd"
+      - "MYSQL_ROOT_PASSWORD="
+      - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
+      - "MYSQL_DATABASE=rd"
+      - "MYSQL_USER=rd"
+      - "MYSQL_PASSWORD=rd"
     volumes:
-      - ./docker/my_custom.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
-      - rd_data:/bitnami/mariadb
+      - ./docker/my_custom.cnf:/etc/mysql/conf.d/my_custom.cnf:ro
+      - rd_data:/var/lib/mysql
       - ./docker/initdb:/docker-entrypoint-initdb.d:ro
     networks:
       - smartneti
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysql", "-u", "root", "-e", "SELECT 1"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 30
+      start_period: 300s
 
   # RadiusDesk web server + FreeRADIUS
   radiusdesk:
@@ -61,7 +63,7 @@ services:
 
   # SmartNeti API service
   smartneti-api:
-    image: docker.io/node:20-alpine
+    image: docker.io/node:20-slim
     container_name: smartneti-api
     restart: unless-stopped
     depends_on:
@@ -70,6 +72,7 @@ services:
     working_dir: /app
     volumes:
       - ./backend:/app
+      - /app/node_modules
     networks:
       - smartneti
     ports:
@@ -78,7 +81,7 @@ services:
 
   # SmartNeti Session Manager
   smartneti-session-manager:
-    image: docker.io/node:20-alpine
+    image: docker.io/node:20-slim
     container_name: smartneti-session-manager
     restart: unless-stopped
     depends_on:
@@ -87,13 +90,14 @@ services:
     working_dir: /app
     volumes:
       - ./backend:/app
+      - /app/node_modules
     networks:
       - smartneti
     command: ["sh", "-c", "npm install && npm run session-manager"]
 
   # SmartNeti Analytics service
   smartneti-analytics:
-    image: docker.io/node:20-alpine
+    image: docker.io/node:20-slim
     container_name: smartneti-analytics
     restart: unless-stopped
     depends_on:
@@ -101,6 +105,7 @@ services:
     working_dir: /app
     volumes:
       - ./backend:/app
+      - /app/node_modules
     networks:
       - smartneti
     ports:
@@ -109,7 +114,7 @@ services:
 
   # SmartNeti Frontend (React dev server)
   smartneti-frontend:
-    image: docker.io/node:20-alpine
+    image: docker.io/node:20-slim
     container_name: smartneti-frontend
     restart: unless-stopped
     depends_on:
@@ -117,6 +122,7 @@ services:
     working_dir: /app
     volumes:
       - ./frontend:/app
+      - /app/node_modules
     networks:
       - smartneti
     ports:

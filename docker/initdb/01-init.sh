@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-FLAG="/bitnami/mariadb/.smartneti-initialized"
+FLAG="/var/lib/mysql/.smartneti-initialized"
 
 if [[ -f $FLAG ]]; then
   echo "SmartNeti database already initialized. Skipping..."
@@ -10,8 +10,8 @@ fi
 
 echo "Initializing SmartNeti RadiusDesk database..."
 
-# Configure timezone data
-mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
+# Configure timezone data (ignore duplicates if already loaded)
+mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -f mysql 2>/dev/null || true
 
 # Configure privileges
 mysql -u root < /docker-entrypoint-initdb.d/db_priveleges.sql
