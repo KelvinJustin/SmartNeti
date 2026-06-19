@@ -7,14 +7,14 @@ const DEFAULT_EMAIL = process.env.SEED_ADMIN_EMAIL || 'admin@smartneti.com';
 const DEFAULT_PASSWORD = process.env.SEED_ADMIN_PASSWORD || 'changeme';
 const DEFAULT_NAME = process.env.SEED_ADMIN_NAME || 'Administrator';
 
-async function seedAdmin() {
+async function seedAdmin({ closePool = true } = {}) {
   const [existing] = await pool.execute(
     'SELECT id FROM smartneti_admins LIMIT 1'
   );
 
   if (existing.length > 0) {
     console.log('Admin account already exists. Skipping seed.');
-    await pool.end();
+    if (closePool) await pool.end();
     return;
   }
 
@@ -27,12 +27,14 @@ async function seedAdmin() {
   );
 
   console.log(`Created admin account: ${DEFAULT_EMAIL} / ${DEFAULT_PASSWORD}`);
-  await pool.end();
+  if (closePool) await pool.end();
 }
 
-seedAdmin().catch((err) => {
-  console.error('Failed to seed admin:', err);
-  process.exit(1);
-});
+if (require.main === module) {
+  seedAdmin().catch((err) => {
+    console.error('Failed to seed admin:', err);
+    process.exit(1);
+  });
+}
 
 module.exports = { seedAdmin };

@@ -103,7 +103,7 @@ app.post('/run-seed', async (req, res) => {
   }
   try {
     const { seedAdmin } = require('../scripts/seed-admin');
-    await seedAdmin();
+    await seedAdmin({ closePool: false });
     res.json({ status: 'seed executed — check logs for result' });
   } catch (err) {
     console.error('Seed endpoint error:', err);
