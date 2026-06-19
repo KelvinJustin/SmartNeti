@@ -9,9 +9,9 @@ Thumbs.db
 *.swo
 
 # Environment
-.env
-.env.local
-.env.*.local
+# .env
+# .env.local
+# .env.*.local
 
 # Docker
 *.log
@@ -28,7 +28,6 @@ redis-data/
 node_modules/
 npm-debug.log
 yarn-error.log
-package-lock.json
 frontend/vite.config.js.timestamp-*
 
 # Python

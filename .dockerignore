@@ -19,6 +19,7 @@ docker-compose.override.yml
 
 # Vendored dependencies (re-cloned via scripts)
 radiusdesk/rdcore/
+!radiusdesk/rdcore/
 
 # Database data and Docker volumes
 mariadb-data/

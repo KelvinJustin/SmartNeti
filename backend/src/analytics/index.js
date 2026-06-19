@@ -5,9 +5,15 @@ const helmet = require('helmet');
 
 const app = express();
 const PORT = process.env.ANALYTICS_PORT || 3002;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+const corsOptions = {
+  origin: FRONTEND_URL,
+  credentials: true,
+};
 
 app.use(helmet());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get('/health', (req, res) => {

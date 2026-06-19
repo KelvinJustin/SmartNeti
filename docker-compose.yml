@@ -40,8 +40,6 @@ services:
       - "PHP.cgi.fix_pathinfo=1"
       - "PHP_SELF=/index.php"
       - "PHP_INI_SCAN_DIR=:/p/sqlite3"
-    volumes:
-      - rd_data:/bitnami/mariadb
     networks:
       - smartneti
     ports:

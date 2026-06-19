@@ -1,0 +1,25 @@
+app = "smartneti"
+primary_region = "jnb"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  API_PORT = "8080"
+  NODE_ENV = "production"
+  # DATABASE_URL = "mysql://user:pass@host:3306/db"  # Set via fly secrets
+  # REDIS_URL = "redis://host:6379"                   # Set via fly secrets
+  # SESSION_SECRET = "change-me-in-production"       # Set via fly secrets
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

@@ -14,18 +14,15 @@ REPO_URL="https://github.com/RADIUSdesk/rdcore.git"
 
 if [ -d "$TARGET_DIR/.git" ]; then
   echo "RadiusDesk already cloned. Checking out pinned commit $PINNED_COMMIT..."
-  cd "$TARGET_DIR"
-  git fetch origin
-  git checkout "$PINNED_COMMIT"
-  cd ..
+  git -C "$TARGET_DIR" fetch origin
+  git -C "$TARGET_DIR" checkout "$PINNED_COMMIT"
 else
   echo "Cloning RadiusDesk at pinned commit $PINNED_COMMIT..."
   rm -rf "$TARGET_DIR"
-  git clone --depth 1 "$REPO_URL" "$TARGET_DIR"
-  cd "$TARGET_DIR"
-  git fetch --depth 1 origin "$PINNED_COMMIT"
-  git checkout "$PINNED_COMMIT"
-  cd ..
+  # Blobless partial clone with no checkout: small initial download, then fetch only the pinned commit.
+  git clone --filter=blob:none --no-checkout "$REPO_URL" "$TARGET_DIR"
+  git -C "$TARGET_DIR" fetch origin "$PINNED_COMMIT"
+  git -C "$TARGET_DIR" checkout "$PINNED_COMMIT"
 fi
 
 echo "RadiusDesk pinned at $PINNED_COMMIT"

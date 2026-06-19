@@ -40,6 +40,18 @@ mysql -u root -e "CREATE DATABASE IF NOT EXISTS smartneti;"
 mysql -u root -e "GRANT ALL PRIVILEGES ON smartneti.* TO 'rd'@'%';"
 mysql -u root -e "FLUSH PRIVILEGES;"
 
+# Apply SmartNeti schema (safe to re-run, uses CREATE TABLE IF NOT EXISTS)
+mysql -u root smartneti < /docker-entrypoint-initdb.d/02_create_smartneti.sql
+
+# Apply SmartNeti migrations in alphabetical order
+for migration in /docker-entrypoint-initdb.d/migrations/*.sql; do
+  if [ -f "$migration" ]; then
+    filename=$(basename "$migration")
+    echo "Applying SmartNeti migration: $filename"
+    mysql -u root smartneti < "$migration"
+  fi
+done
+
 touch "$FLAG"
 
 echo "SmartNeti database initialization complete."
