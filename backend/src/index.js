@@ -95,22 +95,6 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'smartneti-api' });
 });
 
-// TEMP: One-time admin seed endpoint. Remove after first use.
-app.post('/run-seed', async (req, res) => {
-  const secret = req.headers['x-seed-secret'];
-  if (secret !== process.env.SEED_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  try {
-    const { seedAdmin } = require('../scripts/seed-admin');
-    await seedAdmin({ closePool: false });
-    res.json({ status: 'seed executed — check logs for result' });
-  } catch (err) {
-    console.error('Seed endpoint error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
 app.get('/api/v1/users', (req, res) => {
   res.json({ message: 'Users endpoint placeholder' });
 });
