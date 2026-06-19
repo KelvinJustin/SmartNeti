@@ -61,10 +61,17 @@ redisClient.connect().catch((err) => {
 app.use(helmet());
 app.use(cors(corsOptions));
 
+const useRedis = !!process.env.REDIS_HOST;
+const sessionStore = useRedis ? new RedisStore({ client: redisClient }) : undefined;
+
+if (!useRedis) {
+  console.warn('[session] REDIS_HOST not set — using MemoryStore (sessions will not persist across restarts)');
+}
+
 app.use(
   session({
     name: 'smartneti.sid',
-    store: new RedisStore({ client: redisClient }),
+    store: sessionStore,
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
