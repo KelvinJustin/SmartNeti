@@ -110,22 +110,27 @@ app.get('/api/v1/users', (req, res) => {
 
 app.post('/api/v1/auth/login', async (req, res) => {
   const { email, password } = req.body;
+  console.log('[login] attempt for:', email);
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
   try {
+    console.log('[login] querying DB...');
     const [rows] = await pool.execute(
       'SELECT id, email, password_hash, full_name, role FROM smartneti_admins WHERE email = ?',
       [email]
     );
+    console.log('[login] DB rows:', rows.length);
 
     if (rows.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     const admin = rows[0];
+    console.log('[login] comparing password...');
     const valid = await bcrypt.compare(password, admin.password_hash);
+    console.log('[login] password valid:', valid);
     if (!valid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -138,6 +143,7 @@ app.post('/api/v1/auth/login', async (req, res) => {
       role: admin.role,
     };
 
+    console.log('[login] session set, responding');
     res.json({ user: req.session.user });
   } catch (err) {
     console.error('Login error:', err);
