@@ -172,9 +172,15 @@ app.get('/api/v1/dashboard/stats', requireAuth, async (req, res) => {
       'SELECT COUNT(*) AS activeHotspots FROM smartneti_hotspots WHERE status = "active"'
     );
 
-    const [[onlineRow]] = await rdPool.execute(
-      'SELECT COUNT(DISTINCT username) AS onlineUsers FROM radacct WHERE acctstoptime IS NULL'
-    );
+    let onlineUsers = 0;
+    try {
+      const [[onlineRow]] = await rdPool.execute(
+        'SELECT COUNT(DISTINCT username) AS onlineUsers FROM radacct WHERE acctstoptime IS NULL'
+      );
+      onlineUsers = onlineRow.onlineUsers || 0;
+    } catch (rdErr) {
+      console.warn('[dashboard] rdPool query failed (radacct may not exist):', rdErr.message);
+    }
 
     const [[vouchersSoldRow]] = await pool.execute(
       'SELECT COUNT(*) AS vouchersSold FROM smartneti_payments WHERE status = "paid" AND paid_at >= CURDATE()'
@@ -197,7 +203,7 @@ app.get('/api/v1/dashboard/stats', requireAuth, async (req, res) => {
     );
 
     res.json({
-      onlineUsers: onlineRow.onlineUsers || 0,
+      onlineUsers,
       activeHotspots: hotspotRow.activeHotspots || 0,
       vouchersSold: vouchersSoldRow.vouchersSold || 0,
       revenue: revenueRow.revenue || 0,
