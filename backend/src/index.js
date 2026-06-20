@@ -3,8 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const session = require('express-session');
-const { createClient } = require('redis');
-const RedisStore = require('connect-redis').default;
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const path = require('path');
@@ -49,25 +47,6 @@ const corsOptions = {
   credentials: true,
 };
 
-const useRedis = !!(process.env.REDIS_HOST && process.env.REDIS_HOST.trim());
-let redisClient;
-let sessionStore;
-
-if (useRedis) {
-  redisClient = createClient({
-    socket: {
-      host: process.env.REDIS_HOST,
-      port: Number(process.env.REDIS_PORT || 6379),
-    },
-  });
-  redisClient.connect().catch((err) => {
-    console.error('Redis connection failed:', err.message);
-  });
-  sessionStore = new RedisStore({ client: redisClient });
-} else {
-  console.warn('[session] REDIS_HOST not set — using MemoryStore (sessions will not persist across restarts)');
-}
-
 app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors(corsOptions));
@@ -75,7 +54,6 @@ app.use(cors(corsOptions));
 app.use(
   session({
     name: 'smartneti.sid',
-    store: sessionStore,
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
