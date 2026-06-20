@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const session = require('express-session');
+const { createClient } = require('redis');
+const RedisStore = require('connect-redis').default;
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const path = require('path');
@@ -26,7 +28,6 @@ const PORT = process.env.PORT || process.env.API_PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-secret-change-me';
 const SESSION_MAX_AGE = Number(process.env.SESSION_MAX_AGE_MS || 24 * 60 * 60 * 1000);
-const IS_PROD = process.env.NODE_ENV === 'production';
 
 const ALLOWED_ORIGINS = [
   FRONTEND_URL,
@@ -47,19 +48,29 @@ const corsOptions = {
   credentials: true,
 };
 
-app.set('trust proxy', 1);
+const redisClient = createClient({
+  socket: {
+    host: process.env.REDIS_HOST || 'redis',
+    port: Number(process.env.REDIS_PORT || 6379),
+  },
+});
+redisClient.connect().catch((err) => {
+  console.error('Redis connection failed:', err.message);
+});
+
 app.use(helmet());
 app.use(cors(corsOptions));
 
 app.use(
   session({
     name: 'smartneti.sid',
+    store: new RedisStore({ client: redisClient }),
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: IS_PROD,
+      secure: false,
       sameSite: 'lax',
       maxAge: SESSION_MAX_AGE,
     },
@@ -90,27 +101,22 @@ app.get('/api/v1/users', (req, res) => {
 
 app.post('/api/v1/auth/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log('[login] attempt for:', email);
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 
   try {
-    console.log('[login] querying DB...');
     const [rows] = await pool.execute(
       'SELECT id, email, password_hash, full_name, role FROM smartneti_admins WHERE email = ?',
       [email]
     );
-    console.log('[login] DB rows:', rows.length);
 
     if (rows.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     const admin = rows[0];
-    console.log('[login] comparing password...');
     const valid = await bcrypt.compare(password, admin.password_hash);
-    console.log('[login] password valid:', valid);
     if (!valid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -123,7 +129,6 @@ app.post('/api/v1/auth/login', async (req, res) => {
       role: admin.role,
     };
 
-    console.log('[login] session set, responding');
     res.json({ user: req.session.user });
   } catch (err) {
     console.error('Login error:', err);
@@ -152,15 +157,9 @@ app.get('/api/v1/dashboard/stats', requireAuth, async (req, res) => {
       'SELECT COUNT(*) AS activeHotspots FROM smartneti_hotspots WHERE status = "active"'
     );
 
-    let onlineUsers = 0;
-    try {
-      const [[onlineRow]] = await rdPool.execute(
-        'SELECT COUNT(DISTINCT username) AS onlineUsers FROM radacct WHERE acctstoptime IS NULL'
-      );
-      onlineUsers = onlineRow.onlineUsers || 0;
-    } catch (rdErr) {
-      console.warn('[dashboard] rdPool query failed (radacct may not exist):', rdErr.message);
-    }
+    const [[onlineRow]] = await rdPool.execute(
+      'SELECT COUNT(DISTINCT username) AS onlineUsers FROM radacct WHERE acctstoptime IS NULL'
+    );
 
     const [[vouchersSoldRow]] = await pool.execute(
       'SELECT COUNT(*) AS vouchersSold FROM smartneti_payments WHERE status = "paid" AND paid_at >= CURDATE()'
@@ -183,7 +182,7 @@ app.get('/api/v1/dashboard/stats', requireAuth, async (req, res) => {
     );
 
     res.json({
-      onlineUsers,
+      onlineUsers: onlineRow.onlineUsers || 0,
       activeHotspots: hotspotRow.activeHotspots || 0,
       vouchersSold: vouchersSoldRow.vouchersSold || 0,
       revenue: revenueRow.revenue || 0,

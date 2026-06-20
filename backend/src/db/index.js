@@ -10,9 +10,8 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME_SMARTNETI || 'smartneti',
   ssl: sslConfig,
   waitForConnections: true,
-  connectionLimit: 5,
+  connectionLimit: 10,
   queueLimit: 0,
-  connectTimeout: 10000,
 });
 
 const rdPool = mysql.createPool({
@@ -23,9 +22,8 @@ const rdPool = mysql.createPool({
   database: process.env.DB_NAME_RD || 'rd',
   ssl: sslConfig,
   waitForConnections: true,
-  connectionLimit: 5,
+  connectionLimit: 10,
   queueLimit: 0,
-  connectTimeout: 10000,
 });
 
 module.exports = { pool, rdPool };

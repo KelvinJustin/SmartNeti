@@ -79,7 +79,7 @@ export default function HeroCarousel({ slides, interval = 4000 }) {
     >
       <div
         ref={containerRef}
-        className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing select-none"
+        className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing select-none"
         onMouseDown={handlePointerDown}
         onMouseMove={handlePointerMove}
         onMouseUp={handlePointerUp}
@@ -96,16 +96,6 @@ export default function HeroCarousel({ slides, interval = 4000 }) {
             key={i}
             className="snap-center shrink-0 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm"
           >
-            {slide.image && (
-              <div className="h-32 bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                <img
-                  src={slide.image}
-                  alt={slide.title}
-                  className="w-full h-full object-cover"
-                  draggable={false}
-                />
-              </div>
-            )}
             <div className="p-4">
               <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
                 {slide.title}
