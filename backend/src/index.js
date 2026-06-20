@@ -28,6 +28,7 @@ const PORT = process.env.PORT || process.env.API_PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-secret-change-me';
 const SESSION_MAX_AGE = Number(process.env.SESSION_MAX_AGE_MS || 24 * 60 * 60 * 1000);
+const IS_PROD = process.env.NODE_ENV === 'production';
 
 const ALLOWED_ORIGINS = [
   FRONTEND_URL,
@@ -48,7 +49,7 @@ const corsOptions = {
   credentials: true,
 };
 
-const useRedis = !!process.env.REDIS_HOST;
+const useRedis = !!(process.env.REDIS_HOST && process.env.REDIS_HOST.trim());
 let redisClient;
 let sessionStore;
 
@@ -67,6 +68,7 @@ if (useRedis) {
   console.warn('[session] REDIS_HOST not set — using MemoryStore (sessions will not persist across restarts)');
 }
 
+app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors(corsOptions));
 
@@ -79,7 +81,7 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false,
+      secure: IS_PROD,
       sameSite: 'lax',
       maxAge: SESSION_MAX_AGE,
     },
