@@ -38,7 +38,7 @@
     <div class="wrapper">
         <header class="main-header">
             <a href="{Text::url('dashboard')}" class="logo">
-                <span class="logo-mini"><b>N</b>uX</span>
+                <span class="logo-mini"><b>{$_c['CompanyName']|substr:0:1}</b></span>
                 <span class="logo-lg">{$_c['CompanyName']}</span>
             </a>
             <nav class="navbar navbar-static-top">
