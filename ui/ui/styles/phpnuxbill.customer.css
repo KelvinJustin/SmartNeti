@@ -367,29 +367,19 @@ body {
 .loading {
     pointer-events: none;
     opacity: 0.7;
+    position: relative;
 }
 
 .loading::after {
     content: "";
     display: inline-block;
-    width: 16px;
-    height: 16px;
+    width: 44px;
+    height: 44px;
     vertical-align: middle;
     margin-left: 10px;
-    border: 2px solid #fff;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.8s infinite linear;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle r='32' cy='40' cx='40' fill='none' stroke='%235628ee' stroke-width='10' stroke-linejoin='round' stroke-linecap='round' stroke-dasharray='150 50 150 50' stroke-dashoffset='75'%3E%3Canimate attributeName='stroke-dashoffset' from='75' to='275' dur='3s' repeatCount='indefinite' calcMode='spline' keySplines='0.785 0.135 0.15 0.86'/%3E%3C/circle%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .dropdown-menu .dropdown-item {
