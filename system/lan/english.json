@@ -637,5 +637,17 @@
     "If_user_buy_same_internet_plan__expiry_date_will_extend": "If user buy same internet plan, expiry date will extend",
     "Online_Status": "Online Status",
     "Last_Seen": "Last Seen",
-    "Account_already_exists": "Account already exists"
+    "Account_already_exists": "Account already exists",
+    "Filter": "Filter",
+    "Show_chart": "Show chart",
+    "Start_Date": "Start Date",
+    "Start_time": "Start time",
+    "End_Date": "End Date",
+    "End_Time": "End Time",
+    "Internet_Plans": "Internet Plans",
+    "Methods": "Methods",
+    "Max_30_days": "Max 30 days",
+    "All_Transactions_at_Date": "All Transactions at Date",
+    "Information": "Information",
+    "Export_and_Print_will_show_all_data_without_pagination": "Export and Print will show all data without pagination"
 }

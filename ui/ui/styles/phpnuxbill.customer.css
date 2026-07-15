@@ -196,6 +196,11 @@ body {
     box-shadow: 0px 4px 30px rgba(221, 224, 255, .54);
 }
 
+.dark-mode .panel {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+    border-color: #464554;
+}
+
 .panel-primary>.panel-heading {
     color: inherit;
     background-color: transparent;
@@ -244,6 +249,11 @@ body {
     -ms-border-radius: 1px !important;
     border-radius: 15px !important;
     border-color: rgba(221, 224, 255, .54);
+}
+
+.dark-mode .content .row [class*=col-] .box {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+    border-color: #464554;
 }
 
 .box.box-solid.box-info>.box-header {
@@ -304,6 +314,11 @@ body {
     width: 100%;
     -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
     box-shadow: 0px 4px 30px rgba(221, 224, 255, .54);
+}
+
+.dark-mode .box {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+    border-color: #464554;
 }
 
 .modern-skin-dark .main-sidebar .sidebar .sidebar-menu li>a {
@@ -676,10 +691,10 @@ body {
 
 
 .dark-mode .content .row [class*=col-] .box {
-    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-    box-shadow: 4px 4px 30px rgba(221, 224, 255, .54);
-    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-    -ms-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+    -ms-box-shadow: 0 1px 1px rgba(0, 0, 0, .3);
     -webkit-border-radius: 1px !important;
     -moz-border-radius: 1px !important;
     -ms-border-radius: 1px !important;
