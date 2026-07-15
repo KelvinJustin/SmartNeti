@@ -431,6 +431,8 @@ body {
   display: inline-block;
   width: 64px;
   height: 34px;
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
 .switch input {
