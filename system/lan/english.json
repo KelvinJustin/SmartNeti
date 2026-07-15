@@ -649,5 +649,7 @@
     "Max_30_days": "Max 30 days",
     "All_Transactions_at_Date": "All Transactions at Date",
     "Information": "Information",
-    "Export_and_Print_will_show_all_data_without_pagination": "Export and Print will show all data without pagination"
+    "Export_and_Print_will_show_all_data_without_pagination": "Export and Print will show all data without pagination",
+    "Please_enter_a_search_term_": "Please enter a search term.",
+    "info": "info"
 }

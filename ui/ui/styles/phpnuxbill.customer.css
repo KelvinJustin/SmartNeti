@@ -424,6 +424,63 @@ body {
 }
 
 
+/* Theme Toggle */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle-checkbox {
+    display: none;
+}
+
+.theme-toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.theme-toggle-label:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle-label .icon {
+    width: 20px;
+    height: 20px;
+    color: #c7c4d7;
+    transition: color 0.2s ease;
+}
+
+.sun-icon {
+    display: block;
+}
+
+.moon-icon {
+    display: none;
+}
+
+.theme-toggle-checkbox:checked ~ .theme-toggle-label .sun-icon {
+    display: none;
+}
+
+.theme-toggle-checkbox:checked ~ .theme-toggle-label .moon-icon {
+    display: block;
+}
+
+.dark-mode .theme-toggle-label .icon {
+    color: #c2c1ff;
+}
+
+.dark-mode .theme-toggle-label:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 /* dark mode styles start here - SmartNeti Professional Design System */
 .dark-mode {
     background-color: #12131a;

@@ -91,31 +91,22 @@
     {/if}
 
     <script>
-        const toggleIcon = document.getElementById('toggleIcon');
+        const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
         const savedMode = localStorage.getItem('mode');
+        
         if (savedMode === 'dark') {
             body.classList.add('dark-mode');
-            toggleIcon.textContent = '🌞';
+            themeToggle.checked = true;
         }
     
-        function setMode(mode) {
-            if (mode === 'dark') {
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
                 body.classList.add('dark-mode');
-                toggleIcon.textContent = '🌞';
+                localStorage.setItem('mode', 'dark');
             } else {
                 body.classList.remove('dark-mode');
-                toggleIcon.textContent = '🌜';
-            }
-        }
-    
-        toggleIcon.addEventListener('click', () => {
-            if (body.classList.contains('dark-mode')) {
-                setMode('light');
                 localStorage.setItem('mode', 'light');
-            } else {
-                setMode('dark');
-                localStorage.setItem('mode', 'dark');
             }
         });
     </script>
