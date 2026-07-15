@@ -11,7 +11,7 @@
 }
 
 .pace .pace-progress {
-  background: #fff;
+  background: #6764f2;
   position: fixed;
   z-index: 2000;
   top: 0;
@@ -26,7 +26,7 @@
   right: 0px;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px #fff, 0 0 5px #fff;
+  box-shadow: 0 0 10px #6764f2, 0 0 5px #6764f2;
   opacity: 1.0;
   -webkit-transform: rotate(3deg) translate(0px, -4px);
   -moz-transform: rotate(3deg) translate(0px, -4px);
@@ -41,45 +41,20 @@
   z-index: 2000;
   top: 15px;
   right: 50%;
-  width: 14px;
-  height: 14px;
-  border: solid 2px transparent;
-  border-top-color: #fff;
-  border-left-color: #fff;
-  border-radius: 10px;
-  -webkit-animation: pace-spinner 400ms linear infinite;
-  -moz-animation: pace-spinner 400ms linear infinite;
-  -ms-animation: pace-spinner 400ms linear infinite;
-  -o-animation: pace-spinner 400ms linear infinite;
-  animation: pace-spinner 400ms linear infinite;
+  width: 44px;
+  height: 44px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle r='32' cy='40' cx='40' fill='none' stroke='%235628ee' stroke-width='10' stroke-linejoin='round' stroke-linecap='round' stroke-dasharray='150 50 150 50' stroke-dashoffset='75'%3E%3Canimate attributeName='stroke-dashoffset' from='75' to='275' dur='3s' repeatCount='indefinite' calcMode='spline' keySplines='0.785 0.135 0.15 0.86'/%3E%3C/circle%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  animation: none;
 }
 
 @media (max-width: 767px) {
 	.pace .pace-activity {
 	  top: 15px;
 	  right: 15px;
-	  width: 14px;
-	  height: 14px;
+	  width: 44px;
+	  height: 44px;
 	}
-}
-
-@-webkit-keyframes pace-spinner {
-  0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
-}
-@-moz-keyframes pace-spinner {
-  0% { -moz-transform: rotate(0deg); transform: rotate(0deg); }
-  100% { -moz-transform: rotate(360deg); transform: rotate(360deg); }
-}
-@-o-keyframes pace-spinner {
-  0% { -o-transform: rotate(0deg); transform: rotate(0deg); }
-  100% { -o-transform: rotate(360deg); transform: rotate(360deg); }
-}
-@-ms-keyframes pace-spinner {
-  0% { -ms-transform: rotate(0deg); transform: rotate(0deg); }
-  100% { -ms-transform: rotate(360deg); transform: rotate(360deg); }
-}
-@keyframes pace-spinner {
-  0% { transform: rotate(0deg); transform: rotate(0deg); }
-  100% { transform: rotate(360deg); transform: rotate(360deg); }
 }
