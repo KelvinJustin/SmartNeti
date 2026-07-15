@@ -424,61 +424,107 @@ body {
 }
 
 
-/* Theme Toggle */
-.theme-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* Switch-style Theme Toggle */
+.switch {
+  font-size: 17px;
+  position: relative;
+  display: inline-block;
+  width: 64px;
+  height: 34px;
 }
 
-.theme-toggle-checkbox {
-    display: none;
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
-.theme-toggle-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    border-radius: 50%;
-    transition: background-color 0.2s ease;
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #73C0FC;
+  transition: .4s;
+  border-radius: 30px;
 }
 
-.theme-toggle-label:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 30px;
+  width: 30px;
+  border-radius: 20px;
+  left: 2px;
+  bottom: 2px;
+  z-index: 2;
+  background-color: #e8e8e8;
+  transition: .4s;
 }
 
-.theme-toggle-label .icon {
-    width: 20px;
-    height: 20px;
-    color: #c7c4d7;
-    transition: color 0.2s ease;
+.sun svg {
+  position: absolute;
+  top: 6px;
+  left: 36px;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
 }
 
-.sun-icon {
-    display: block;
+.moon svg {
+  fill: #73C0FC;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
 }
 
-.moon-icon {
-    display: none;
+.switch:hover .sun svg {
+  animation: rotate 15s linear infinite;
 }
 
-.theme-toggle-checkbox:checked ~ .theme-toggle-label .sun-icon {
-    display: none;
+@keyframes rotate {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-.theme-toggle-checkbox:checked ~ .theme-toggle-label .moon-icon {
-    display: block;
+.switch:hover .moon svg {
+  animation: tilt 5s linear infinite;
 }
 
-.dark-mode .theme-toggle-label .icon {
-    color: #c2c1ff;
+@keyframes tilt {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
-.dark-mode .theme-toggle-label:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+.input:checked + .slider {
+  background-color: #183153;
+}
+
+.input:focus + .slider {
+  box-shadow: 0 0 1px #183153;
+}
+
+.input:checked + .slider:before {
+  transform: translateX(30px);
 }
 
 /* dark mode styles start here - SmartNeti Professional Design System */
