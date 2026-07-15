@@ -664,6 +664,127 @@ input:checked+.slider:before {
     transform: translateX(26px);
 }
 
+/* SmartNeti Professional Cards */
+.smartneti-card {
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 1.5rem;
+    padding: 24px;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.smartneti-card:hover {
+    box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.smartneti-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.smartneti-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.smartneti-card-icon-primary {
+    background-color: rgba(103, 100, 242, 0.1);
+    color: #6764f2;
+}
+
+.smartneti-card-icon-secondary {
+    background-color: rgba(114, 113, 173, 0.1);
+    color: #7271ad;
+}
+
+.smartneti-card-icon-tertiary {
+    background-color: rgba(255, 180, 166, 0.1);
+    color: #ffb4a6;
+}
+
+.smartneti-card-icon-info {
+    background-color: rgba(194, 193, 255, 0.1);
+    color: #c2c1ff;
+}
+
+.smartneti-card-label {
+    font-family: 'Geist', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #71717a;
+}
+
+.smartneti-card-body {
+    margin-bottom: 16px;
+}
+
+.smartneti-card-value {
+    font-family: 'Hanken Grotesk', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 40px;
+    letter-spacing: -0.02em;
+    color: #09090b;
+    margin: 0;
+}
+
+.smartneti-card-value sup {
+    font-size: 16px;
+    font-weight: 500;
+    vertical-align: super;
+}
+
+.smartneti-card-footer {
+    display: block;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6764f2;
+    text-decoration: none;
+    padding-top: 8px;
+    border-top: 1px solid #e4e4e7;
+    transition: color 0.2s ease;
+}
+
+.smartneti-card-footer:hover {
+    color: #4d49d8;
+    text-decoration: underline;
+}
+
+.dark-mode .smartneti-card {
+    background-color: #1b1b23;
+    border-color: #464554;
+}
+
+.dark-mode .smartneti-card-label {
+    color: #918fa0;
+}
+
+.dark-mode .smartneti-card-value {
+    color: #e3e1ec;
+}
+
+.dark-mode .smartneti-card-footer {
+    color: #6764f2;
+    border-color: #464554;
+}
+
+.dark-mode .smartneti-card-footer:hover {
+    color: #c2c1ff;
+}
+
 /* Switch-style Theme Toggle */
 .switch {
   font-size: 17px;
