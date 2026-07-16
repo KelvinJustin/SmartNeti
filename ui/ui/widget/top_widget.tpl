@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row" style="margin-bottom: 24px;">
     {if in_array($_admin['user_type'],['SuperAdmin','Admin', 'Report'])}
         <div class="col-lg-3 col-xs-6">
             <div class="smartneti-card">

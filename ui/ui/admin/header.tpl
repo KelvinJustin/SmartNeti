@@ -389,10 +389,10 @@
                                 {/if}
                             </a>
                         </li>
-                        <li {if $_system_menu eq 'community' }class="active" {/if}>
-                            <a href="{Text::url('community')}">
+                        <li class="disabled">
+                            <a href="javascript:void(0)" style="cursor: not-allowed; opacity: 0.5;">
                                 <i class="ion ion-chatboxes"></i>
-                                <span class="text">Community</span>
+                                <span class="text">Community <small class="label pull-right">Coming Soon</small></span>
                             </a>
                         </li>
                     {/if}

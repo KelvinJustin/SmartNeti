@@ -785,6 +785,7 @@ input:checked+.slider:before {
     position: relative;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    margin-bottom: 24px;
 }
 
 .smartneti-card:hover {
@@ -1322,65 +1323,457 @@ select:not(#filterNavigateMenu),
     border-color: #464554;
 }
 
-.dark-mode .table {
+/* SmartNeti Professional Form Styling */
+.form-control {
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: #09090b;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    border-color: #6764f2;
+    box-shadow: 0 0 0 3px rgba(103, 100, 242, 0.1);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #71717a;
+}
+
+.dark-mode .form-control {
     background-color: #1b1b23;
-    color: #e3e1ec;
     border-color: #464554;
+    color: #e3e1ec;
 }
 
-.dark-mode .table th,
-.dark-mode .table td {
+.dark-mode .form-control:focus {
+    border-color: #6764f2;
+    box-shadow: 0 0 0 3px rgba(103, 100, 242, 0.2);
+}
+
+.dark-mode .form-control::placeholder {
+    color: #918fa0;
+}
+
+/* Form Labels */
+.control-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #09090b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+.dark-mode .control-label {
+    color: #e3e1ec;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+/* Panel/Form Container */
+.panel {
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.panel-default {
+    border-color: #e4e4e7;
+}
+
+.dark-mode .panel {
     background-color: #1f1f27;
     border-color: #464554;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .panel-default {
+    border-color: #464554;
+}
+
+.panel-heading {
+    background-color: #f4f4f5;
+    border-bottom: 1px solid #e4e4e7;
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+    color: #09090b;
+}
+
+.dark-mode .panel-heading {
+    background-color: #1b1b23;
+    border-bottom-color: #464554;
     color: #e3e1ec;
 }
 
-.dark-mode .table th {
+.panel-body {
+    padding: 1.5rem;
+}
+
+.panel-footer {
+    background-color: #f4f4f5;
+    border-top: 1px solid #e4e4e7;
+    padding: 1rem 1.5rem;
+}
+
+.dark-mode .panel-footer {
+    background-color: #1b1b23;
+    border-top-color: #464554;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 0.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.875rem;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #6764f2;
+    border-color: #6764f2;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #5d52e0;
+    border-color: #5d52e0;
+    color: #ffffff;
+}
+
+.btn-default {
+    background-color: #ffffff;
+    border-color: #e4e4e7;
+    color: #09090b;
+}
+
+.btn-default:hover {
+    background-color: #f4f4f5;
+    border-color: #d4d4d7;
+    color: #09090b;
+}
+
+.dark-mode .btn-default {
     background-color: #292932;
-    font-weight: bold;
+    border-color: #464554;
+    color: #e3e1ec;
 }
 
-.dark-mode .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #1f1f27;
+.dark-mode .btn-default:hover {
+    background-color: #34343d;
+    border-color: #565660;
+    color: #e3e1ec;
 }
 
-.dark-mode .table-bordered {
+/* Help Block */
+.help-block {
+    font-size: 0.75rem;
+    color: #71717a;
+    margin-top: 4px;
+}
+
+.dark-mode .help-block {
+    color: #918fa0;
+}
+
+/* SmartNeti Professional Summernote Editor */
+.note-editor {
     border: 1px solid #464554;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: #1b1b23;
 }
 
-.dark-mode .table-hover tbody tr:hover {
-    background-color: #292932;
-    color: #e3e1ec;
+.note-editor.note-frame {
+    border-color: #464554;
 }
 
-.dark-mode .table-condensed th,
-.dark-mode .table-condensed td {
+.note-toolbar {
+    background-color: #34343d;
+    border-bottom: 1px solid #464554;
     padding: 8px;
 }
 
-.dark-mode .panel>.table:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child {
-    border-bottom-right-radius: 21px;
-    border-bottom-left-radius: 21px;
+.note-toolbar .btn-group {
+    margin: 0 4px;
 }
 
-.dark-mode .panel>.table:last-child>tbody:last-child>tr:last-child,
-.dark-mode .panel>.table:last-child>tfoot:last-child>tr:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tbody:last-child>tr:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tfoot:last-child>tr:last-child {
-    border-bottom-right-radius: 21px;
-    border-bottom-left-radius: 21px;
+.note-toolbar .btn-default {
+    background-color: #292932;
+    border-color: #464554;
+    color: #e3e1ec;
+    border-radius: 2px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
 }
 
-.dark-mode .panel>.table:last-child>tbody:last-child>tr:last-child td:last-child,
-.dark-mode .panel>.table:last-child>tbody:last-child>tr:last-child th:last-child,
-.dark-mode .panel>.table:last-child>tfoot:last-child>tr:last-child td:last-child,
-.dark-mode .panel>.table:last-child>tfoot:last-child>tr:last-child th:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tbody:last-child>tr:last-child td:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tbody:last-child>tr:last-child th:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tfoot:last-child>tr:last-child td:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tfoot:last-child>tr:last-child th:last-child {
-    border-bottom-right-radius: 21px;
+.note-toolbar .btn-default:hover {
+    background-color: #393841;
+    color: #e3e1ec;
+}
+
+.note-toolbar .btn-default.active {
+    background-color: #6764f2;
+    border-color: #6764f2;
+    color: #ffffff;
+}
+
+.note-editable {
+    background-color: #1b1b23;
+    color: #e3e1ec;
+    padding: 1.5rem;
+    min-height: 300px;
+}
+
+.note-editable:focus {
+    outline: none;
+}
+
+.note-editable p {
+    color: #e3e1ec;
+}
+
+.note-editable a {
+    color: #6764f2;
+}
+
+.note-editable a:hover {
+    color: #c2c1ff;
+}
+
+.note-statusbar {
+    background-color: #34343d;
+    border-top: 1px solid #464554;
+    color: #918fa0;
+    font-size: 0.75rem;
+}
+
+.dark-mode .note-editor {
+    border-color: #464554;
+    background-color: #1b1b23;
+}
+
+.dark-mode .note-editor.note-frame {
+    border-color: #464554;
+}
+
+.dark-mode .note-toolbar {
+    background-color: #34343d;
+    border-bottom-color: #464554;
+}
+
+.dark-mode .note-toolbar .btn-default {
+    background-color: #292932;
+    border-color: #464554;
+    color: #e3e1ec;
+}
+
+.dark-mode .note-toolbar .btn-default:hover {
+    background-color: #393841;
+}
+
+.dark-mode .note-toolbar .btn-default.active {
+    background-color: #6764f2;
+    border-color: #6764f2;
+    color: #ffffff;
+}
+
+.dark-mode .note-editable {
+    background-color: #1b1b23;
+    color: #e3e1ec;
+}
+
+.dark-mode .note-statusbar {
+    background-color: #34343d;
+    border-top-color: #464554;
+    color: #918fa0;
+}
+
+/* Light mode Summernote */
+.note-editor.light-mode {
+    border-color: #e4e4e7;
+    background-color: #ffffff;
+}
+
+.light-mode .note-editor.note-frame {
+    border-color: #e4e4e7;
+}
+
+.light-mode .note-toolbar {
+    background-color: #f4f4f5;
+    border-bottom-color: #e4e4e7;
+}
+
+.light-mode .note-toolbar .btn-default {
+    background-color: #ffffff;
+    border-color: #e4e4e7;
+    color: #09090b;
+}
+
+.light-mode .note-toolbar .btn-default:hover {
+    background-color: #fafafa;
+}
+
+.light-mode .note-toolbar .btn-default.active {
+    background-color: #6764f2;
+    border-color: #6764f2;
+    color: #ffffff;
+}
+
+.light-mode .note-editable {
+    background-color: #ffffff;
+    color: #09090b;
+}
+
+.light-mode .note-statusbar {
+    background-color: #f4f4f5;
+    border-top-color: #e4e4e7;
+    color: #71717a;
+}
+
+/* SmartNeti Professional Tables - Seamless Container Integration */
+.panel .table-responsive,
+.panel .table-wrapper {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+    text-align: left;
+    background-color: #ffffff;
+}
+
+.table thead th {
+    background-color: #f4f4f5;
+    color: #71717a;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e4e4e7;
+    font-size: 12px;
+}
+
+.table tbody td {
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(228, 228, 231, 0.5);
+    vertical-align: middle;
+    color: #09090b;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #fafafa;
+}
+
+.table-bordered {
+    border: none;
+}
+
+.table-bordered > thead > tr > th,
+.table-bordered > thead > tr > td,
+.table-bordered > tbody > tr > th,
+.table-bordered > tbody > tr > td,
+.table-bordered > tfoot > tr > th,
+.table-bordered > tfoot > tr > td {
+    border: 1px solid rgba(228, 228, 231, 0.5);
+}
+
+.table-bordered > thead > tr > th,
+.table-bordered > thead > tr > td {
+    border-bottom-width: 2px;
+}
+
+.dark-mode .table {
+    background-color: #1f1f27;
+    color: #e3e1ec;
+}
+
+.dark-mode .table thead th {
+    background-color: #1b1b23;
+    color: #918fa0;
+    border-bottom-color: #464554;
+}
+
+.dark-mode .table tbody td {
+    border-bottom-color: rgba(70, 69, 84, 0.4);
+    color: #e3e1ec;
+}
+
+.dark-mode .table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #1b1b23;
+}
+
+.dark-mode .table-bordered > thead > tr > th,
+.dark-mode .table-bordered > thead > tr > td,
+.dark-mode .table-bordered > tbody > tr > th,
+.dark-mode .table-bordered > tbody > tr > td,
+.dark-mode .table-bordered > tfoot > tr > th,
+.dark-mode .table-bordered > tfoot > tr > td {
+    border-color: rgba(70, 69, 84, 0.4);
+}
+
+.dark-mode .table-bordered > thead > tr > th,
+.dark-mode .table-bordered > thead > tr > td {
+    border-bottom-color: #464554;
+}
+
+/* Remove old table styles that conflict with new design */
+.dark-mode .table th,
+.dark-mode .table td {
+    background-color: transparent;
+}
+
+.dark-mode .panel > .table:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.dark-mode .panel > .table:last-child > tbody:last-child > tr:last-child,
+.dark-mode .panel > .table:last-child > tfoot:last-child > tr:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.dark-mode .panel > .table:last-child > tbody:last-child > tr:last-child td:last-child,
+.dark-mode .panel > .table:last-child > tbody:last-child > tr:last-child th:last-child,
+.dark-mode .panel > .table:last-child > tfoot:last-child > tr:last-child td:last-child,
+.dark-mode .panel > .table:last-child > tfoot:last-child > tr:last-child th:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child td:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:last-child {
+    border-bottom-right-radius: 0;
 }
 
 /* Dark Mode - Select2 Dropdown start here */

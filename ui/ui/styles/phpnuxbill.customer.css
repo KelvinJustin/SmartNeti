@@ -760,65 +760,137 @@ body {
     border-color: #464554;
 }
 
+/* SmartNeti Professional Tables - Seamless Container Integration */
+.panel .table-responsive,
+.panel .table-wrapper {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+    text-align: left;
+    background-color: #ffffff;
+}
+
+.table thead th {
+    background-color: #f4f4f5;
+    color: #71717a;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e4e4e7;
+    font-size: 12px;
+}
+
+.table tbody td {
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(228, 228, 231, 0.5);
+    vertical-align: middle;
+    color: #09090b;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #fafafa;
+}
+
+.table-bordered {
+    border: none;
+}
+
+.table-bordered > thead > tr > th,
+.table-bordered > thead > tr > td,
+.table-bordered > tbody > tr > th,
+.table-bordered > tbody > tr > td,
+.table-bordered > tfoot > tr > th,
+.table-bordered > tfoot > tr > td {
+    border: 1px solid rgba(228, 228, 231, 0.5);
+}
+
+.table-bordered > thead > tr > th,
+.table-bordered > thead > tr > td {
+    border-bottom-width: 2px;
+}
+
 .dark-mode .table {
-    background-color: #1b1b23;
-    color: #e3e1ec;
-    border-color: #464554;
-}
-
-.dark-mode .table th,
-.dark-mode .table td {
     background-color: #1f1f27;
-    border-color: #464554;
     color: #e3e1ec;
 }
 
-.dark-mode .table th {
-    background-color: #292932;
-    font-weight: bold;
+.dark-mode .table thead th {
+    background-color: #1b1b23;
+    color: #918fa0;
+    border-bottom-color: #464554;
+}
+
+.dark-mode .table tbody td {
+    border-bottom-color: rgba(70, 69, 84, 0.4);
+    color: #e3e1ec;
+}
+
+.dark-mode .table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.02);
 }
 
 .dark-mode .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #1f1f27;
+    background-color: #1b1b23;
 }
 
-.dark-mode .table-bordered {
-    border: 1px solid #464554;
+.dark-mode .table-bordered > thead > tr > th,
+.dark-mode .table-bordered > thead > tr > td,
+.dark-mode .table-bordered > tbody > tr > th,
+.dark-mode .table-bordered > tbody > tr > td,
+.dark-mode .table-bordered > tfoot > tr > th,
+.dark-mode .table-bordered > tfoot > tr > td {
+    border-color: rgba(70, 69, 84, 0.4);
 }
 
-.dark-mode .table-hover tbody tr:hover {
-    background-color: #292932;
-    color: #e3e1ec;
+.dark-mode .table-bordered > thead > tr > th,
+.dark-mode .table-bordered > thead > tr > td {
+    border-bottom-color: #464554;
 }
 
-.dark-mode .table-condensed th,
-.dark-mode .table-condensed td {
-    padding: 8px;
+/* Remove old table styles that conflict with new design */
+.dark-mode .table th,
+.dark-mode .table td {
+    background-color: transparent;
 }
 
-.dark-mode .panel>.table:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child {
-    border-bottom-right-radius: 21px;
-    border-bottom-left-radius: 21px;
+.dark-mode .panel > .table:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
-.dark-mode .panel>.table:last-child>tbody:last-child>tr:last-child,
-.dark-mode .panel>.table:last-child>tfoot:last-child>tr:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tbody:last-child>tr:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tfoot:last-child>tr:last-child {
-    border-bottom-right-radius: 21px;
-    border-bottom-left-radius: 21px;
+.dark-mode .panel > .table:last-child > tbody:last-child > tr:last-child,
+.dark-mode .panel > .table:last-child > tfoot:last-child > tr:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
-.dark-mode .panel>.table:last-child>tbody:last-child>tr:last-child td:last-child,
-.dark-mode .panel>.table:last-child>tbody:last-child>tr:last-child th:last-child,
-.dark-mode .panel>.table:last-child>tfoot:last-child>tr:last-child td:last-child,
-.dark-mode .panel>.table:last-child>tfoot:last-child>tr:last-child th:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tbody:last-child>tr:last-child td:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tbody:last-child>tr:last-child th:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tfoot:last-child>tr:last-child td:last-child,
-.dark-mode .panel>.table-responsive:last-child>.table:last-child>tfoot:last-child>tr:last-child th:last-child {
-    border-bottom-right-radius: 21px;
+.dark-mode .panel > .table:last-child > tbody:last-child > tr:last-child td:last-child,
+.dark-mode .panel > .table:last-child > tbody:last-child > tr:last-child th:last-child,
+.dark-mode .panel > .table:last-child > tfoot:last-child > tr:last-child td:last-child,
+.dark-mode .panel > .table:last-child > tfoot:last-child > tr:last-child th:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child td:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tbody:last-child > tr:last-child th:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child td:last-child,
+.dark-mode .panel > .table-responsive:last-child > .table:last-child > tfoot:last-child > tr:last-child th:last-child {
+    border-bottom-right-radius: 0;
 }
 
 .dark-mode .help-block {
