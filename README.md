@@ -89,6 +89,8 @@ SmartNeti is a comprehensive, feature-rich network management and billing system
 
 ## 🚀 Installation
 
+For detailed installation instructions, please see the [INSTALL.md](INSTALL.md) file.
+
 ### System Requirements
 
 **Minimum Requirements:**
@@ -107,39 +109,21 @@ SmartNeti is a comprehensive, feature-rich network management and billing system
 - Windows servers (cron job setup required)
 - Raspberry Pi devices
 
-### Quick Installation
+### Quick Start
 
-1. **Download and Extract**
+1. **Download SmartNeti**
    ```bash
-   git clone https://github.com/your-repo/smartneti.git
-   cd smartneti
+   git clone https://github.com/KelvinJustin/SmartNeti.git
+   cd SmartNeti
    ```
 
-2. **Configure Database**
-   - Create a MySQL database
-   - Import the provided SQL file
-   - Update `config.php` with your database credentials
+2. **Follow Installation Guide**
+   - See [INSTALL.md](INSTALL.md) for complete step-by-step instructions
+   - Includes server setup, database configuration, and MikroTik integration
 
-3. **Set Permissions**
-   ```bash
-   chmod 755 system/
-   chmod 755 system/uploads/
-   chmod 755 pages/
-   ```
-
-4. **Configure Web Server**
-   - Point your web server to the SmartNeti directory
-   - Ensure `.htaccess` is enabled (Apache)
-
-5. **Run Installation**
-   - Access `http://your-domain.com/install` in your browser
-   - Follow the installation wizard
-
-6. **Setup Cron Jobs**
-   ```bash
-   # Run every minute
-   * * * * * php /path/to/smartneti/system/cron.php
-   ```
+3. **Access Admin Panel**
+   - Default URL: `http://your-domain.com/admin`
+   - Default credentials: `admin` / `admin`
 
 ### Docker Installation
 
