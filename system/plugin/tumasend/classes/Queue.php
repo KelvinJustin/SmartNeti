@@ -2,6 +2,8 @@
 
 namespace TumaSend;
 
+use ORM;
+
 /**
  * Queue Manager
  * 
@@ -195,3 +197,4 @@ class Queue
         return $deleted;
     }
 }
+

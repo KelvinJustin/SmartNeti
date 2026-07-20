@@ -1,3 +1,4 @@
+{include file="sections/header.tpl"}
 <div class="box">
     <div class="box-header with-border">
         <h3 class="box-title">TumaSend Diagnostics</h3>
@@ -58,3 +59,4 @@
         </div>
     </div>
 </div>
+{include file="sections/footer.tpl"}

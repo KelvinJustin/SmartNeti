@@ -9,6 +9,176 @@
         color: #333;
         cursor: pointer;
     }
+
+    /* Modern Customer Table Styling */
+    .table_mobile {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: 8px;
+        background-color: transparent;
+    }
+
+    #customerTable {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    #customerTable thead th {
+        position: sticky;
+        top: 0;
+        background-color: rgba(39, 42, 53, 0.95);
+        backdrop-filter: blur(4px);
+        color: #9ca3af;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 16px;
+        border-bottom: 1px solid #2d3342;
+        z-index: 10;
+    }
+
+    #customerTable tbody td {
+        padding: 16px;
+        font-size: 0.875rem;
+        border-bottom: 1px solid #2d3342;
+        vertical-align: middle;
+        transition: background-color 0.15s ease;
+        color: #f3f4f6;
+    }
+
+    #customerTable tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    #customerTable tbody tr:hover td {
+        background-color: #272a35;
+    }
+
+    #customerTable tbody tr.danger td {
+        background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    #customerTable tbody tr.danger:hover td {
+        background-color: rgba(239, 68, 68, 0.2);
+    }
+
+    /* Checkbox styling */
+    #customerTable input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #3b82f6;
+        cursor: pointer;
+    }
+
+    /* Circular avatars */
+    #customerTable .customer-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        background-color: #2d3342;
+        display: inline-block;
+        border: 2px solid #2d3342;
+    }
+
+    /* Circular contact icons */
+    .contact-icons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #272a35;
+        border: 1px solid #2d3342;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        padding: 0;
+    }
+
+    .btn-circle:hover {
+        color: #f3f4f6;
+        border-color: #3b82f6;
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    /* Modern Status Pills */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .status-active {
+        background-color: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-suspended {
+        background-color: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .status-disabled {
+        background-color: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Modernized Action Buttons (Button Group) */
+    .action-group {
+        display: inline-flex;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid #2d3342;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        background-color: transparent;
+        color: #f3f4f6;
+        border-right: 1px solid #2d3342;
+        transition: background-color 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-action:last-child {
+        border-right: none;
+    }
+
+    .btn-action:hover {
+        background-color: #272a35;
+    }
+
+    .btn-action.view { color: #14b8a6; }
+    .btn-action.edit { color: #06b6d4; }
+    .btn-action.sync { color: #14b8a6; }
+    .btn-action.recharge { color: #3b82f6; }
+
+    .btn-action:hover.view { background-color: rgba(20, 184, 166, 0.1); }
+    .btn-action:hover.edit { background-color: rgba(6, 182, 212, 0.1); }
+    .btn-action:hover.sync { background-color: rgba(20, 184, 166, 0.1); }
+    .btn-action:hover.recharge { background-color: rgba(59, 130, 246, 0.1); }
 </style>
 
 <div class="row">
@@ -94,10 +264,10 @@
                 </form>
                 <br>&nbsp;
                 <div class="table-responsive table_mobile">
-                    <table id="customerTable" class="table table-bordered table-striped table-condensed">
+                    <table id="customerTable">
                         <thead>
                             <tr>
-                                <th><input type="checkbox" id="select-all"></th>
+                                <th style="width: 40px;"><input type="checkbox" id="select-all"></th>
                                 <th>{Lang::T('Username')}</th>
                                 <th>Photo</th>
                                 <th>{Lang::T('Account Type')}</th>
@@ -109,7 +279,7 @@
                                 <th>PPPOE</th>
                                 <th>{Lang::T('Status')}</th>
                                 <th>{Lang::T('Created On')}</th>
-                                <th>{Lang::T('Manage')}</th>
+                                <th style="text-align: right;">{Lang::T('Manage')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -117,32 +287,37 @@
                             <tr {if $ds['status'] !='Active' }class="danger" {/if}>
                                 <td><input type="checkbox" name="customer_ids[]" value="{$ds['id']}"></td>
                                 <td onclick="window.location.href = '{Text::url('customers/view/', $ds['id'])}'"
-                                    style="cursor:pointer;">{$ds['username']}</td>
+                                    style="cursor:pointer; font-weight: 500;">{$ds['username']}</td>
                                 <td>
                                     <a href="{$app_url}/{$UPLOAD_PATH}{$ds['photo']}" target="photo">
-                                        <img src="{$app_url}/{$UPLOAD_PATH}{$ds['photo']}.thumb.jpg" width="32" alt="">
+                                        <img src="{$app_url}/{$UPLOAD_PATH}{$ds['photo']}.thumb.jpg" class="customer-avatar" alt="">
                                     </a>
                                 </td>
                                 <td>{$ds['account_type']}</td>
                                 <td onclick="window.location.href = '{Text::url('customers/view/', $ds['id'])}'"
                                     style="cursor: pointer;">{$ds['fullname']}</td>
                                 <td>{Lang::moneyFormat($ds['balance'])}</td>
-                                <td align="center">
-                                    {if $ds['phonenumber']}
-                                    <a href="tel:{$ds['phonenumber']}" class="btn btn-default btn-xs"
-                                        title="{$ds['phonenumber']}"><i class="glyphicon glyphicon-earphone"></i></a>
-                                    {/if}
-                                    {if $ds['email']}
-                                    <a href="mailto:{$ds['email']}" class="btn btn-default btn-xs"
-                                        title="{$ds['email']}"><i class="glyphicon glyphicon-envelope"></i></a>
-                                    {/if}
-                                    {if $ds['coordinates']}
-                                    <a href="https://www.google.com/maps/dir//{$ds['coordinates']}/" target="_blank"
-                                        class="btn btn-default btn-xs" title="{$ds['coordinates']}"><i
-                                            class="glyphicon glyphicon-map-marker"></i></a>
-                                    {/if}
+                                <td>
+                                    <div class="contact-icons">
+                                        {if $ds['phonenumber']}
+                                        <a href="tel:{$ds['phonenumber']}" class="btn-circle" title="{$ds['phonenumber']}">
+                                            <i class="glyphicon glyphicon-earphone"></i>
+                                        </a>
+                                        {/if}
+                                        {if $ds['email']}
+                                        <a href="mailto:{$ds['email']}" class="btn-circle" title="{$ds['email']}">
+                                            <i class="glyphicon glyphicon-envelope"></i>
+                                        </a>
+                                        {/if}
+                                        {if $ds['coordinates']}
+                                        <a href="https://www.google.com/maps/dir//{$ds['coordinates']}/" target="_blank"
+                                            class="btn-circle" title="{$ds['coordinates']}">
+                                            <i class="glyphicon glyphicon-map-marker"></i>
+                                        </a>
+                                        {/if}
+                                    </div>
                                 </td>
-                                <td align="center" api-get-text="{Text::url('autoload/plan_is_active/')}{$ds['id']}">
+                                <td api-get-text="{Text::url('autoload/plan_is_active/')}{$ds['id']}">
                                     <span class="label label-default">&bull;</span>
                                 </td>
                                 <td>{$ds['service_type']}</td>
@@ -151,27 +326,35 @@
                                     {if !empty($ds['pppoe_username']) && !empty($ds['pppoe_ip'])}:{/if}
                                     {$ds['pppoe_ip']}
                                 </td>
-                                <td>{Lang::T($ds['status'])}</td>
-                                <td>{Lang::dateTimeFormat($ds['created_at'])}</td>
-                                <td align="center">
-                                    <a href="{Text::url('customers/view/')}{$ds['id']}" id="{$ds['id']}"
-                                        style="margin: 0px; color:black"
-                                        class="btn btn-success btn-xs">&nbsp;&nbsp;{Lang::T('View')}&nbsp;&nbsp;</a>
-                                    <a href="{Text::url('customers/edit/', $ds['id'], '&token=', $csrf_token)}"
-                                        id="{$ds['id']}" style="margin: 0px; color:black"
-                                        class="btn btn-info btn-xs">&nbsp;&nbsp;{Lang::T('Edit')}&nbsp;&nbsp;</a>
-                                    <a href="{Text::url('customers/sync/', $ds['id'], '&token=', $csrf_token)}"
-                                        id="{$ds['id']}" style="margin: 5px; color:black"
-                                        class="btn btn-success btn-xs">&nbsp;&nbsp;{Lang::T('Sync')}&nbsp;&nbsp;</a>
-                                    <a href="{Text::url('plan/recharge/', $ds['id'], '&token=', $csrf_token)}"
-                                        id="{$ds['id']}" style="margin: 0px;"
-                                        class="btn btn-primary btn-xs">{Lang::T('Recharge')}</a>
+                                <td>
+                                    {if $ds['status'] == 'Active'}
+                                    <span class="status-pill status-active">{Lang::T($ds['status'])}</span>
+                                    {elseif $ds['status'] == 'Suspended'}
+                                    <span class="status-pill status-suspended">{Lang::T($ds['status'])}</span>
+                                    {elseif $ds['status'] == 'Disabled'}
+                                    <span class="status-pill status-disabled">{Lang::T($ds['status'])}</span>
+                                    {else}
+                                    <span class="status-pill status-active">{Lang::T($ds['status'])}</span>
+                                    {/if}
+                                </td>
+                                <td style="color: #9ca3af;">{Lang::dateTimeFormat($ds['created_at'])}</td>
+                                <td style="text-align: right;">
+                                    <div class="action-group">
+                                        <a href="{Text::url('customers/view/')}{$ds['id']}" id="{$ds['id']}"
+                                            class="btn-action view">{Lang::T('View')}</a>
+                                        <a href="{Text::url('customers/edit/', $ds['id'], '&token=', $csrf_token)}"
+                                            id="{$ds['id']}" class="btn-action edit">{Lang::T('Edit')}</a>
+                                        <a href="{Text::url('customers/sync/', $ds['id'], '&token=', $csrf_token)}"
+                                            id="{$ds['id']}" class="btn-action sync">{Lang::T('Sync')}</a>
+                                        <a href="{Text::url('plan/recharge/', $ds['id'], '&token=', $csrf_token)}"
+                                            id="{$ds['id']}" class="btn-action recharge">{Lang::T('Recharge')}</a>
+                                    </div>
                                 </td>
                             </tr>
                             {/foreach}
                         </tbody>
                     </table>
-                    <div class="row" style="padding: 5px">
+                    <div class="row" style="padding: 16px 5px 5px;">
                         <div class="col-lg-3 col-lg-offset-9">
                             <div class="btn-group btn-group-justified" role="group">
                                 <!-- <div class="btn-group" role="group">
@@ -181,7 +364,7 @@
                                     {/if}
                                 </div> -->
                                 <div class="btn-group" role="group">
-                                    <button id="sendMessageToSelected" class="btn btn-success">{Lang::T('Send
+                                    <button id="sendMessageToSelected" class="btn btn-success" style="background-color: #14b8a6; border: none; border-radius: 6px; padding: 10px 24px; font-weight: 500;">{Lang::T('Send
                                         Message')}</button>
                                 </div>
                             </div>

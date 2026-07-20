@@ -105,6 +105,8 @@ class API
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => $this->config->getConnectionTimeout(),
             CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'x-api-key: ' . $apiKey

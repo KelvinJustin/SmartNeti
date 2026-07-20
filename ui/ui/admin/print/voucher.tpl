@@ -4,7 +4,7 @@
 <head>
     <title>{$_title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" type="image/x-icon" href="{$app_url}/ui/ui/images/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="{$app_url}/ui/ui/images/smartneti-logo.png">
     <style>
         .ukuran {
             size: A4;

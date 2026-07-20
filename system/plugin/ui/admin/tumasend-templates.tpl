@@ -1,3 +1,4 @@
+{include file="sections/header.tpl"}
 <div class="box">
     <div class="box-header with-border">
         <h3 class="box-title">Message Templates</h3>
@@ -47,3 +48,4 @@
         </div>
     </div>
 </div>
+{include file="sections/footer.tpl"}

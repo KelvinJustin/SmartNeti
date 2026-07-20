@@ -1,9 +1,11 @@
+{include file="sections/header.tpl"}
 <div class="box">
     <div class="box-header with-border">
         <h3 class="box-title">TumaSend Settings</h3>
     </div>
     <div class="box-body">
         <form role="form" method="post" action="{$_url}plugin/tumasend/settings/save">
+            <input type="hidden" name="csrf_token" value="{$csrf_token}">
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -16,8 +18,8 @@
                     
                     <div class="form-group">
                         <label class="control-label">API Key</label>
-                        <input type="password" class="form-control" name="tumasend_api_key" value="{$settings.tumasend_api_key|default:''}" placeholder="ts_live_ or ts_test_">
-                        <small class="form-text text-muted">Your TumaSend API key. Starts with ts_live_ or ts_test_</small>
+                        <input type="password" class="form-control" name="tumasend_api_key" value="{$settings.tumasend_api_key|default:''}" placeholder="Your TumaSend API key">
+                        <small class="form-text text-muted">Your TumaSend API key from the dashboard</small>
                     </div>
                     
                     <div class="form-group">
@@ -89,22 +91,97 @@
                         </select>
                         <small class="form-text text-muted">Queue messages for background processing</small>
                     </div>
-                    
-                    <div class="box box-solid box-primary" style="margin-top: 20px;">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">Test SMS</h3>
-                        </div>
-                        <div class="box-body">
-                            <div class="form-group">
-                                <label class="control-label">Test Recipient</label>
-                                <input type="text" class="form-control" name="test_recipient" placeholder="+265991234567">
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label">Test Message</label>
-                                <textarea class="form-control" name="test_message" rows="3">This is a test message from TumaSend plugin.</textarea>
-                            </div>
-                            <button type="submit" name="test_sms" value="1" class="btn btn-info">Send Test SMS</button>
-                        </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Data Usage Alerts</label>
+                        <select class="form-control" name="data_usage_alerts_enabled">
+                            <option value="0" {if $settings.data_usage_alerts_enabled == '0'}selected{/if}>Disabled</option>
+                            <option value="1" {if $settings.data_usage_alerts_enabled == '1'}selected{/if}>Enabled</option>
+                        </select>
+                        <small class="form-text text-muted">Send SMS alerts at configured data usage thresholds (requires cron job)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Data Usage Thresholds (%)</label>
+                        <input type="text" class="form-control" name="data_usage_thresholds" value="{$settings.data_usage_thresholds|default:'50,80,100'}" placeholder="50,80,100">
+                        <small class="form-text text-muted">Comma-separated thresholds (e.g., 50,80,100)</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-md-12">
+                    <h4>Alert Type Toggles</h4>
+                    <p class="text-muted">Enable/disable specific alert types that trigger SMS notifications</p>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Payment Confirmation Alerts</label>
+                        <select class="form-control" name="alert_payment_confirmation">
+                            <option value="0" {if $settings.alert_payment_confirmation == '0'}selected{/if}>Disabled</option>
+                            <option value="1" {if $settings.alert_payment_confirmation == '1'}selected{/if}>Enabled</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Voucher Delivery Alerts</label>
+                        <select class="form-control" name="alert_voucher_delivery">
+                            <option value="0" {if $settings.alert_voucher_delivery == '0'}selected{/if}>Disabled</option>
+                            <option value="1" {if $settings.alert_voucher_delivery == '1'}selected{/if}>Enabled</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Password Reset Alerts</label>
+                        <select class="form-control" name="alert_password_reset">
+                            <option value="0" {if $settings.alert_password_reset == '0'}selected{/if}>Disabled</option>
+                            <option value="1" {if $settings.alert_password_reset == '1'}selected{/if}>Enabled</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Account Activation Alerts</label>
+                        <select class="form-control" name="alert_account_activation">
+                            <option value="0" {if $settings.alert_account_activation == '0'}selected{/if}>Disabled</option>
+                            <option value="1" {if $settings.alert_account_activation == '1'}selected{/if}>Enabled</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Package Activation Alerts</label>
+                        <select class="form-control" name="alert_package_activation">
+                            <option value="0" {if $settings.alert_package_activation == '0'}selected{/if}>Disabled</option>
+                            <option value="1" {if $settings.alert_package_activation == '1'}selected{/if}>Enabled</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Package Expiration Alerts</label>
+                        <select class="form-control" name="alert_package_expiration">
+                            <option value="0" {if $settings.alert_package_expiration == '0'}selected{/if}>Disabled</option>
+                            <option value="1" {if $settings.alert_package_expiration == '1'}selected{/if}>Enabled</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Low Balance Alerts</label>
+                        <select class="form-control" name="alert_low_balance">
+                            <option value="0" {if $settings.alert_low_balance == '0'}selected{/if}>Disabled</option>
+                            <option value="1" {if $settings.alert_low_balance == '1'}selected{/if}>Enabled</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Invoice Alerts</label>
+                        <select class="form-control" name="alert_invoice">
+                            <option value="0" {if $settings.alert_invoice == '0'}selected{/if}>Disabled</option>
+                            <option value="1" {if $settings.alert_invoice == '1'}selected{/if}>Enabled</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -120,3 +197,24 @@
         </form>
     </div>
 </div>
+
+<div class="box box-solid box-primary" style="margin-top: 20px;">
+    <div class="box-header with-border">
+        <h3 class="box-title">Test SMS</h3>
+    </div>
+    <div class="box-body">
+        <form role="form" method="post" action="{$_url}plugin/tumasend/test">
+            <input type="hidden" name="csrf_token" value="{$csrf_token}">
+            <div class="form-group">
+                <label class="control-label">Test Recipient</label>
+                <input type="text" class="form-control" name="test_recipient" placeholder="+265991234567">
+            </div>
+            <div class="form-group">
+                <label class="control-label">Test Message</label>
+                <textarea class="form-control" name="test_message" rows="3">This is a test message from TumaSend plugin.</textarea>
+            </div>
+            <button type="submit" name="test_sms" value="1" class="btn btn-info">Send Test SMS</button>
+        </form>
+    </div>
+</div>
+{include file="sections/footer.tpl"}

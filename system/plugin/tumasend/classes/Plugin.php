@@ -2,6 +2,10 @@
 
 namespace TumaSend;
 
+use ORM;
+use File;
+use function isTableExist;
+
 /**
  * Main TumaSend Plugin Class
  * 
@@ -40,9 +44,8 @@ class Plugin
     private function createTables()
     {
         // Config table
-        if (!isTableExist('tbl_tumasend_config')) {
-            ORM::raw_execute("
-                CREATE TABLE `tbl_tumasend_config` (
+        ORM::raw_execute("
+            CREATE TABLE IF NOT EXISTS `tbl_tumasend_config` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
                     `setting_key` varchar(100) NOT NULL,
                     `setting_value` text,
@@ -52,12 +55,10 @@ class Plugin
                     UNIQUE KEY `setting_key` (`setting_key`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             ");
-        }
         
         // SMS history table
-        if (!isTableExist('tbl_tumasend_sms_history')) {
-            ORM::raw_execute("
-                CREATE TABLE `tbl_tumasend_sms_history` (
+        ORM::raw_execute("
+            CREATE TABLE IF NOT EXISTS `tbl_tumasend_sms_history` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
                     `batch_id` varchar(100) DEFAULT NULL,
                     `recipient` varchar(20) NOT NULL,
@@ -83,12 +84,10 @@ class Plugin
                     KEY `queued_at` (`queued_at`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             ");
-        }
         
         // Templates table
-        if (!isTableExist('tbl_tumasend_templates')) {
-            ORM::raw_execute("
-                CREATE TABLE `tbl_tumasend_templates` (
+        ORM::raw_execute("
+            CREATE TABLE IF NOT EXISTS `tbl_tumasend_templates` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
                     `template_key` varchar(100) NOT NULL,
                     `template_name` varchar(255) NOT NULL,
@@ -99,12 +98,10 @@ class Plugin
                     UNIQUE KEY `template_key` (`template_key`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             ");
-        }
         
         // Queue table
-        if (!isTableExist('tbl_tumasend_queue')) {
-            ORM::raw_execute("
-                CREATE TABLE `tbl_tumasend_queue` (
+        ORM::raw_execute("
+            CREATE TABLE IF NOT EXISTS `tbl_tumasend_queue` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
                     `recipient` varchar(20) NOT NULL,
                     `message` text NOT NULL,
@@ -123,7 +120,25 @@ class Plugin
                     KEY `priority` (`priority`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             ");
-        }
+
+        // Data usage alerts tracking table
+        ORM::raw_execute("
+            CREATE TABLE IF NOT EXISTS `tbl_tumasend_data_alerts` (
+                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                    `customer_id` int(11) NOT NULL,
+                    `recharge_id` int(11) NOT NULL,
+                    `threshold` int(11) NOT NULL,
+                    `alerted_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+                    `usage_percent` decimal(5,2) DEFAULT NULL,
+                    `usage_mb` decimal(10,2) DEFAULT NULL,
+                    `limit_mb` decimal(10,2) DEFAULT NULL,
+                    PRIMARY KEY (`id`),
+                    UNIQUE KEY `customer_recharge_threshold` (`customer_id`, `recharge_id`, `threshold`),
+                    KEY `customer_id` (`customer_id`),
+                    KEY `recharge_id` (`recharge_id`),
+                    KEY `alerted_at` (`alerted_at`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            ");
     }
     
     /**
@@ -139,6 +154,9 @@ class Plugin
             'package_activation' => 'Package Activation',
             'package_expiration' => 'Package Expiration',
             'low_balance' => 'Low Balance Alert',
+            'data_usage_50' => 'Data Usage 50% Alert',
+            'data_usage_80' => 'Data Usage 80% Alert',
+            'data_usage_100' => 'Data Usage 100% Alert',
         ];
         
         foreach ($defaults as $key => $name) {
@@ -180,12 +198,35 @@ class Plugin
      */
     public function adminSettings()
     {
-        global $ui, $admin, $routes;
+        global $ui, $admin, $routes, $menu_registered;
         
         $ui->assign('_title', 'TumaSend Settings');
-        $ui->assign('_system_menu', 'settings');
+        $ui->assign('_system_menu', 'tumasend');
+        $ui->assign('_admin', $admin);
         
-        $action = isset($routes[2]) ? $routes[2] : 'view';
+        // Build menu variables manually
+        $menus = [];
+        foreach ($menu_registered as $menu) {
+            if ($menu['admin'] && function_exists('_admin') && _admin(false)) {
+                if (count($menu['auth']) == 0 || in_array($admin['user_type'], $menu['auth'])) {
+                    $menus[$menu['position']] .= '<li' . (($routes[1] == $menu['function']) ? ' class="active"' : '') . '><a href="' . getUrl('plugin/' . $menu['function']) . '">';
+                    if (!empty($menu['icon'])) {
+                        $menus[$menu['position']] .= '<i class="' . $menu['icon'] . '"></i>';
+                    }
+                    if (!empty($menu['label'])) {
+                        $menus[$menu['position']] .= '<span class="pull-right-container">';
+                        $menus[$menu['position']] .= '<small class="label pull-right bg-' . $menu['color'] . '">' . $menu['label'] . '</small></span>';
+                    }
+                    $menus[$menu['position']] .= '<span class="text">' . $menu['name'] . '</span></a></li>';
+                }
+            }
+        }
+        
+        foreach ($menus as $k => $v) {
+            $ui->assign('_MENU_' . $k, $v);
+        }
+        
+        $action = isset($routes[3]) ? $routes[3] : 'view';
         
         if ($action == 'save') {
             $this->saveSettings();
@@ -195,7 +236,8 @@ class Plugin
         $ui->assign('settings', $settings);
         $ui->assign('environment', $this->config->getEnvironment());
         
-        $ui->display('plugin/admin/tumasend-settings.tpl');
+        global $root_path;
+        $ui->display($root_path . 'system/plugin/ui/admin/tumasend-settings.tpl');
     }
     
     /**
@@ -203,6 +245,8 @@ class Plugin
      */
     private function saveSettings()
     {
+        global $admin;
+        
         $settings = [
             'tumasend_enabled' => _post('tumasend_enabled', '0'),
             'tumasend_api_key' => _post('tumasend_api_key', ''),
@@ -221,7 +265,7 @@ class Plugin
             $this->config->set($key, $value);
         }
         
-        _log('TumaSend settings updated', 'Admin', $admin['id']);
+        _log('TumaSend settings updated', 'Admin', isset($admin['id']) ? $admin['id'] : 0);
         r2(getUrl('plugin/tumasend/settings'), 's', 'Settings saved successfully');
     }
     
@@ -230,10 +274,33 @@ class Plugin
      */
     public function adminHistory()
     {
-        global $ui, $admin, $routes;
+        global $ui, $admin, $routes, $menu_registered;
         
         $ui->assign('_title', 'TumaSend SMS History');
-        $ui->assign('_system_menu', 'settings');
+        $ui->assign('_system_menu', 'tumasend');
+        $ui->assign('_admin', $admin);
+        
+        // Build menu variables manually
+        $menus = [];
+        foreach ($menu_registered as $menu) {
+            if ($menu['admin'] && function_exists('_admin') && _admin(false)) {
+                if (count($menu['auth']) == 0 || in_array($admin['user_type'], $menu['auth'])) {
+                    $menus[$menu['position']] .= '<li' . (($routes[1] == $menu['function']) ? ' class="active"' : '') . '><a href="' . getUrl('plugin/' . $menu['function']) . '">';
+                    if (!empty($menu['icon'])) {
+                        $menus[$menu['position']] .= '<i class="' . $menu['icon'] . '"></i>';
+                    }
+                    if (!empty($menu['label'])) {
+                        $menus[$menu['position']] .= '<span class="pull-right-container">';
+                        $menus[$menu['position']] .= '<small class="label pull-right bg-' . $menu['color'] . '">' . $menu['label'] . '</small></span>';
+                    }
+                    $menus[$menu['position']] .= '<span class="text">' . $menu['name'] . '</span></a></li>';
+                }
+            }
+        }
+        
+        foreach ($menus as $k => $v) {
+            $ui->assign('_MENU_' . $k, $v);
+        }
         
         $page = isset($routes[2]) && is_numeric($routes[2]) ? $routes[2] : 1;
         $limit = 20;
@@ -261,7 +328,8 @@ class Plugin
         $ui->assign('total', $total);
         $ui->assign('total_pages', ceil($total / $limit));
         
-        $ui->display('plugin/admin/tumasend-history.tpl');
+        global $root_path;
+        $ui->display($root_path . 'system/plugin/ui/admin/tumasend-history.tpl');
     }
     
     /**
@@ -269,10 +337,33 @@ class Plugin
      */
     public function adminTemplates()
     {
-        global $ui, $admin, $routes;
+        global $ui, $admin, $routes, $menu_registered;
         
         $ui->assign('_title', 'TumaSend Message Templates');
-        $ui->assign('_system_menu', 'settings');
+        $ui->assign('_system_menu', 'tumasend');
+        $ui->assign('_admin', $admin);
+        
+        // Build menu variables manually
+        $menus = [];
+        foreach ($menu_registered as $menu) {
+            if ($menu['admin'] && function_exists('_admin') && _admin(false)) {
+                if (count($menu['auth']) == 0 || in_array($admin['user_type'], $menu['auth'])) {
+                    $menus[$menu['position']] .= '<li' . (($routes[1] == $menu['function']) ? ' class="active"' : '') . '><a href="' . getUrl('plugin/' . $menu['function']) . '">';
+                    if (!empty($menu['icon'])) {
+                        $menus[$menu['position']] .= '<i class="' . $menu['icon'] . '"></i>';
+                    }
+                    if (!empty($menu['label'])) {
+                        $menus[$menu['position']] .= '<span class="pull-right-container">';
+                        $menus[$menu['position']] .= '<small class="label pull-right bg-' . $menu['color'] . '">' . $menu['label'] . '</small></span>';
+                    }
+                    $menus[$menu['position']] .= '<span class="text">' . $menu['name'] . '</span></a></li>';
+                }
+            }
+        }
+        
+        foreach ($menus as $k => $v) {
+            $ui->assign('_MENU_' . $k, $v);
+        }
         
         $action = isset($routes[2]) ? $routes[2] : 'view';
         
@@ -285,7 +376,9 @@ class Plugin
             ->find_many();
         
         $ui->assign('templates', $templates);
-        $ui->display('plugin/admin/tumasend-templates.tpl');
+        
+        global $root_path;
+        $ui->display($root_path . 'system/plugin/ui/admin/tumasend-templates.tpl');
     }
     
     /**
@@ -314,15 +407,39 @@ class Plugin
      */
     public function adminDiagnostics()
     {
-        global $ui, $admin;
+        global $ui, $admin, $routes, $menu_registered;
         
         $ui->assign('_title', 'TumaSend Diagnostics');
-        $ui->assign('_system_menu', 'settings');
+        $ui->assign('_system_menu', 'tumasend');
+        $ui->assign('_admin', $admin);
+        
+        // Build menu variables manually
+        $menus = [];
+        foreach ($menu_registered as $menu) {
+            if ($menu['admin'] && function_exists('_admin') && _admin(false)) {
+                if (count($menu['auth']) == 0 || in_array($admin['user_type'], $menu['auth'])) {
+                    $menus[$menu['position']] .= '<li' . (($routes[1] == $menu['function']) ? ' class="active"' : '') . '><a href="' . getUrl('plugin/' . $menu['function']) . '">';
+                    if (!empty($menu['icon'])) {
+                        $menus[$menu['position']] .= '<i class="' . $menu['icon'] . '"></i>';
+                    }
+                    if (!empty($menu['label'])) {
+                        $menus[$menu['position']] .= '<span class="pull-right-container">';
+                        $menus[$menu['position']] .= '<small class="label pull-right bg-' . $menu['color'] . '">' . $menu['label'] . '</small></span>';
+                    }
+                    $menus[$menu['position']] .= '<span class="text">' . $menu['name'] . '</span></a></li>';
+                }
+            }
+        }
+        
+        foreach ($menus as $k => $v) {
+            $ui->assign('_MENU_' . $k, $v);
+        }
         
         $diagnostics = $this->runDiagnostics();
         $ui->assign('diagnostics', $diagnostics);
         
-        $ui->display('plugin/admin/tumasend-diagnostics.tpl');
+        global $root_path;
+        $ui->display($root_path . 'system/plugin/ui/admin/tumasend-diagnostics.tpl');
     }
     
     /**
@@ -367,8 +484,8 @@ class Plugin
         // Database Tables
         $results['tables'] = [
             'name' => 'Database Tables',
-            'status' => isTableExist('tbl_tumasend_config') ? 'pass' : 'fail',
-            'value' => isTableExist('tbl_tumasend_config') ? 'Created' : 'Missing',
+            'status' => \isTableExist('tbl_tumasend_config') ? 'pass' : 'fail',
+            'value' => \isTableExist('tbl_tumasend_config') ? 'Created' : 'Missing',
             'required' => 'Created'
         ];
         
@@ -549,4 +666,299 @@ class Plugin
     {
         return $this->queue;
     }
+
+    /**
+     * Check if specific alert type is enabled
+     */
+    public function isAlertTypeEnabled($message)
+    {
+        // Determine alert type based on message content
+        $alertType = $this->detectAlertType($message);
+
+        if ($alertType === 'unknown') {
+            return true; // Allow unknown message types by default
+        }
+
+        $settingKey = 'alert_' . $alertType;
+        $enabled = $this->config->get($settingKey);
+
+        return $enabled === '1';
+    }
+
+    /**
+     * Detect alert type from message content
+     */
+    private function detectAlertType($message)
+    {
+        $messageLower = strtolower($message);
+
+        // Check for data usage alerts
+        if (strpos($messageLower, 'data limit') !== false ||
+            strpos($messageLower, 'data usage') !== false ||
+            strpos($messageLower, '% of your data') !== false) {
+            return 'data_usage';
+        }
+
+        // Check for payment confirmation
+        if (strpos($messageLower, 'payment') !== false &&
+            strpos($messageLower, 'confirmation') !== false) {
+            return 'payment_confirmation';
+        }
+
+        // Check for voucher delivery
+        if (strpos($messageLower, 'voucher') !== false) {
+            return 'voucher_delivery';
+        }
+
+        // Check for password reset
+        if (strpos($messageLower, 'password') !== false &&
+            strpos($messageLower, 'reset') !== false) {
+            return 'password_reset';
+        }
+
+        // Check for account activation
+        if (strpos($messageLower, 'account') !== false &&
+            strpos($messageLower, 'activation') !== false) {
+            return 'account_activation';
+        }
+
+        // Check for package activation
+        if (strpos($messageLower, 'package') !== false &&
+            strpos($messageLower, 'activation') !== false) {
+            return 'package_activation';
+        }
+
+        // Check for package expiration
+        if (strpos($messageLower, 'package') !== false &&
+            strpos($messageLower, 'expir') !== false) {
+            return 'package_expiration';
+        }
+
+        // Check for low balance
+        if (strpos($messageLower, 'balance') !== false &&
+            strpos($messageLower, 'low') !== false) {
+            return 'low_balance';
+        }
+
+        // Check for invoice
+        if (strpos($messageLower, 'invoice') !== false) {
+            return 'invoice';
+        }
+
+        return 'unknown';
+    }
+
+    /**
+     * Monitor data usage and send alerts at thresholds
+     * Called by cron job every minute
+     */
+    public function monitorDataUsage()
+    {
+        // Check if data usage monitoring is enabled
+        $enabled = $this->config->get('data_usage_alerts_enabled');
+        if ($enabled !== 'yes') {
+            return;
+        }
+
+        try {
+            // Get configured thresholds
+            $thresholdsConfig = $this->config->get('data_usage_thresholds');
+            $thresholds = $thresholdsConfig ? explode(',', $thresholdsConfig) : [50, 80, 100];
+            $thresholds = array_map('trim', $thresholds);
+            $thresholds = array_map('intval', $thresholds);
+            sort($thresholds);
+
+            // Get active plans with data limits
+            $activePlans = ORM::for_table('tbl_user_recharges')
+                ->where('status', 'on')
+                ->join('tbl_plans', ['tbl_user_recharges.plan_id', '=', 'tbl_plans.id'])
+                ->where_in('tbl_plans.limit_type', ['Data_Limit', 'Both_Limit'])
+                ->where_in('tbl_plans.typebp', ['Limited'])
+                ->find_many();
+
+            if (empty($activePlans)) {
+                return;
+            }
+
+            foreach ($activePlans as $recharge) {
+                $this->checkCustomerDataUsage($recharge, $thresholds);
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('Data usage monitoring error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Check individual customer data usage
+     */
+    private function checkCustomerDataUsage($recharge, $thresholds)
+    {
+        try {
+            $plan = ORM::for_table('tbl_plans')->where('id', $recharge['plan_id'])->find_one();
+            $customer = ORM::for_table('tbl_customers')->where('id', $recharge['customer_id'])->find_one();
+
+            if (!$plan || !$customer) {
+                return;
+            }
+
+            // Calculate data limit in MB
+            $limitMb = $this->calculateDataLimitMb($plan);
+            if ($limitMb <= 0) {
+                return;
+            }
+
+            // Get current usage
+            $usageMb = $this->getCurrentDataUsage($customer['username'], $recharge);
+            if ($usageMb < 0) {
+                return;
+            }
+
+            // Calculate usage percentage
+            $usagePercent = ($usageMb / $limitMb) * 100;
+
+            // Check thresholds
+            foreach ($thresholds as $threshold) {
+                if ($usagePercent >= $threshold) {
+                    $this->sendDataUsageAlert($customer, $recharge, $plan, $usagePercent, $usageMb, $limitMb, $threshold);
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('Error checking customer data usage: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Calculate data limit in MB
+     */
+    private function calculateDataLimitMb($plan)
+    {
+        $limit = $plan['data_limit'];
+        $unit = $plan['data_unit'];
+
+        switch ($unit) {
+            case 'GB':
+                return $limit * 1024;
+            case 'MB':
+                return $limit;
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * Get current data usage from router or database
+     */
+    private function getCurrentDataUsage($username, $recharge)
+    {
+        try {
+            // Try to get usage from radius accounting table first
+            $usage = ORM::for_table('rad_acct')
+                ->where('username', $username)
+                ->where('acctstarttime', '>=', $recharge['recharged_on'])
+                ->select_expr('SUM(acctinputoctets + acctoutputoctets)', 'total_bytes')
+                ->find_one();
+
+            if ($usage && $usage['total_bytes']) {
+                return $usage['total_bytes'] / (1024 * 1024); // Convert to MB
+            }
+
+            // Fallback: try to get from Mikrotik router
+            $router = ORM::for_table('tbl_routers')->where('id', $recharge['routers'])->find_one();
+            if ($router) {
+                return $this->getMikrotikDataUsage($router, $username);
+            }
+
+            return 0;
+        } catch (\Exception $e) {
+            $this->logger->error('Error getting data usage: ' . $e->getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * Get data usage from Mikrotik router
+     */
+    private function getMikrotikDataUsage($router, $username)
+    {
+        try {
+            // This would require Mikrotik API integration
+            // For now, return 0 as fallback
+            return 0;
+        } catch (\Exception $e) {
+            $this->logger->error('Error getting Mikrotik data usage: ' . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Send data usage alert
+     */
+    private function sendDataUsageAlert($customer, $recharge, $plan, $usagePercent, $usageMb, $limitMb, $threshold)
+    {
+        try {
+            // Check if alert already sent for this threshold
+            $existingAlert = ORM::for_table('tbl_tumasend_data_alerts')
+                ->where('customer_id', $customer['id'])
+                ->where('recharge_id', $recharge['id'])
+                ->where('threshold', $threshold)
+                ->find_one();
+
+            if ($existingAlert) {
+                return; // Already alerted for this threshold
+            }
+
+            // Get template
+            $templateKey = 'data_usage_' . $threshold;
+            $template = ORM::for_table('tbl_tumasend_templates')
+                ->where('template_key', $templateKey)
+                ->find_one();
+
+            if (!$template) {
+                $message = "Dear {$customer['fullname']}, you have used {$usagePercent}% of your data limit ({$usageMb}MB / {$limitMb}MB).";
+            } else {
+                $message = $this->replaceTemplatePlaceholders($template['template_content'], $customer, $plan, $usagePercent, $usageMb, $limitMb);
+            }
+
+            // Send SMS
+            if (!empty($customer['phonenumber'])) {
+                $this->sms->send($customer['phonenumber'], $message);
+            }
+
+            // Record alert
+            $alert = ORM::for_table('tbl_tumasend_data_alerts')->create();
+            $alert->customer_id = $customer['id'];
+            $alert->recharge_id = $recharge['id'];
+            $alert->threshold = $threshold;
+            $alert->usage_percent = $usagePercent;
+            $alert->usage_mb = $usageMb;
+            $alert->limit_mb = $limitMb;
+            $alert->save();
+
+        } catch (\Exception $e) {
+            $this->logger->error('Error sending data usage alert: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Replace template placeholders
+     */
+    private function replaceTemplatePlaceholders($template, $customer, $plan, $usagePercent, $usageMb, $limitMb)
+    {
+        $replacements = [
+            '{customer_name}' => $customer['fullname'],
+            '{customer_username}' => $customer['username'],
+            '{plan_name}' => $plan['name'],
+            '{usage_percent}' => number_format($usagePercent, 2),
+            '{usage_mb}' => number_format($usageMb, 2),
+            '{limit_mb}' => number_format($limitMb, 2),
+        ];
+
+        return str_replace(array_keys($replacements), array_values($replacements), $template);
+    }
 }
+
+
+
+
+
+

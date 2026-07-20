@@ -2,6 +2,8 @@
 
 namespace TumaSend;
 
+use ORM;
+
 /**
  * SMS Service
  * 
@@ -285,3 +287,4 @@ class SMS
         $history->save();
     }
 }
+

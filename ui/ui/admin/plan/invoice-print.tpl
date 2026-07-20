@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{$_title}</title>
-    <link rel="shortcut icon" type="image/x-icon" href="{$app_url}/ui/ui/images/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="{$app_url}/ui/ui/images/smartneti-logo.png">
     <style>
         body {
             font-family: Arial, sans-serif;

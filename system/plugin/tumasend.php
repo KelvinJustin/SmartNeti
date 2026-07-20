@@ -38,37 +38,98 @@ spl_autoload_register(function ($class) {
 
 use TumaSend\Plugin;
 
-// Initialize plugin
-$plugin = new Plugin();
-$plugin->init();
-
-// Register hooks
+// Register hooks (tables will be created when admin first accesses settings)
 register_hook('send_sms', 'tumasend_send_sms_hook');
+register_hook('cronjob', 'tumasend_data_usage_monitor');
 
 function tumasend_send_sms_hook($args) {
     list($phone, $txt) = $args;
     $plugin = new Plugin();
+
+    // Check if specific alert type is enabled
+    if (!$plugin->isAlertTypeEnabled($txt)) {
+        return false;
+    }
+
     return $plugin->sendSMS($phone, $txt);
+}
+
+function tumasend_data_usage_monitor() {
+    $plugin = new Plugin();
+    $plugin->monitorDataUsage();
 }
 
 // Register admin menu
 register_menu(
-    'TumaSend',
+    '    SMS Config',
     true,
-    'tumasend_settings',
-    'AFTER_PAYMENTGATEWAY',
+    'tumasend',
+    'AFTER_SETTINGS',
     'ion-chatbubbles',
     '',
     'success',
-    ['SuperAdmin', 'Admin']
+    []
 );
 
 // Admin functions
+function tumasend() {
+    global $routes;
+    
+    $action = isset($routes[2]) ? $routes[2] : 'settings';
+    
+    switch ($action) {
+        case 'settings':
+            tumasend_settings();
+            break;
+        case 'test':
+            tumasend_test();
+            break;
+        case 'history':
+            tumasend_history();
+            break;
+        case 'templates':
+            tumasend_templates();
+            break;
+        case 'diagnostics':
+            tumasend_diagnostics();
+            break;
+        default:
+            tumasend_settings();
+            break;
+    }
+}
+
 function tumasend_settings() {
     global $ui, $admin, $routes;
     _admin();
     $plugin = new Plugin();
+    $plugin->init(); // Initialize tables on first access
     $plugin->adminSettings();
+}
+
+function tumasend_test() {
+    global $ui, $admin, $routes;
+    _admin();
+    $plugin = new Plugin();
+    $plugin->init();
+    
+    $recipient = _post('test_recipient');
+    $message = _post('test_message');
+    
+    if ($recipient && $message) {
+        try {
+            $result = $plugin->sendSMS($recipient, $message);
+            if ($result) {
+                r2(getUrl('plugin/tumasend/settings'), 's', 'Test SMS sent successfully');
+            } else {
+                r2(getUrl('plugin/tumasend/settings'), 'e', 'Test SMS failed - check plugin settings and API key');
+            }
+        } catch (\Exception $e) {
+            r2(getUrl('plugin/tumasend/settings'), 'e', 'Test SMS error: ' . $e->getMessage());
+        }
+    } else {
+        r2(getUrl('plugin/tumasend/settings'), 'e', 'Please provide recipient and message');
+    }
 }
 
 function tumasend_history() {
@@ -110,3 +171,6 @@ function tumasend_api_balance() {
     $plugin = new Plugin();
     $plugin->getAPIBalance();
 }
+
+
+

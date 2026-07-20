@@ -2,6 +2,8 @@
 
 namespace TumaSend;
 
+use ORM;
+
 /**
  * Logger
  * 
@@ -60,3 +62,4 @@ class Logger
         return $query->find_many();
     }
 }
+

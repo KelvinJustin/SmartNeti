@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{Lang::T('Admin Login')} - {$_c['CompanyName']}</title>
-    <link rel="shortcut icon" href="{$app_url}/ui/ui/images/logo.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="{$app_url}/ui/ui/images/smartneti-logo.png" type="image/x-icon" />
     
     <script>
         var appUrl = '{$app_url}';

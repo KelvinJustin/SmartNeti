@@ -2,6 +2,8 @@
 
 namespace TumaSend;
 
+use ORM;
+
 /**
  * Template Manager
  * 
@@ -133,3 +135,4 @@ class Template
         return $result;
     }
 }
+

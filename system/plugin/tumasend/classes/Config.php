@@ -2,6 +2,8 @@
 
 namespace TumaSend;
 
+use ORM;
+
 /**
  * Configuration Manager
  * 
@@ -77,13 +79,11 @@ class Config
     {
         $apiKey = $this->get('tumasend_api_key', '');
         
-        if (strpos($apiKey, 'ts_live_') === 0) {
-            return 'live';
-        } elseif (strpos($apiKey, 'ts_test_') === 0) {
-            return 'test';
+        if (!empty($apiKey)) {
+            return 'configured';
         }
         
-        return 'unknown';
+        return 'not configured';
     }
     
     /**
@@ -164,3 +164,4 @@ class Config
         return $this->get('tumasend_enabled', '0') === '1';
     }
 }
+

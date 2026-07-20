@@ -1,3 +1,4 @@
+{include file="sections/header.tpl"}
 <div class="box">
     <div class="box-header with-border">
         <h3 class="box-title">SMS History</h3>
@@ -58,7 +59,7 @@
                     <td>
                         <small>{$msg.message|truncate:50}</small>
                         {if strlen($msg.message) > 50}
-                        <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#msgModal{$msg.id}">View</button>
+                        <button type="button" class="btn btn-xs btn-info" onclick="toggleMessage({$msg.id})">View</button>
                         {/if}
                     </td>
                     <td>
@@ -85,59 +86,69 @@
                         {if $msg.status == 'failed'}
                         <button type="button" class="btn btn-xs btn-warning" onclick="resendSMS({$msg.id})">Retry</button>
                         {/if}
-                        <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#detailModal{$msg.id}">Details</button>
+                        <button type="button" class="btn btn-xs btn-info" onclick="toggleDetails({$msg.id})">Details</button>
                     </td>
                 </tr>
-                
-                <!-- Message Modal -->
-                <div class="modal fade" id="msgModal{$msg.id}" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                <h4 class="modal-title">Message Content</h4>
+
+                <!-- Message Detail Row -->
+                <tr id="messageRow{$msg.id}" class="detail-row" style="display: none;">
+                    <td colspan="8" style="padding: 15px; background-color: #f9f9f9;">
+                        <h5>Full Message</h5>
+                        <pre style="background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">{$msg.message}</pre>
+                    </td>
+                </tr>
+
+                <!-- SMS Details Row -->
+                <tr id="detailRow{$msg.id}" class="detail-row" style="display: none;">
+                    <td colspan="8" style="padding: 15px; background-color: #f5f5f5; border-top: 2px solid #ddd;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-condensed" style="background: #fff; border: 1px solid #ddd;">
+                                    <tr>
+                                        <th style="width: 30%;">Sent At</th>
+                                        <td>{$msg.sent_at|default:'N/A'}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Delivered At</th>
+                                        <td>{$msg.delivered_at|default:'N/A'}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Failed At</th>
+                                        <td>{$msg.failed_at|default:'N/A'}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Credits Used</th>
+                                        <td>{$msg.credits_used|default:'N/A'}</td>
+                                    </tr>
+                                </table>
                             </div>
-                            <div class="modal-body">
-                                <pre>{$msg.message}</pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Detail Modal -->
-                <div class="modal fade" id="detailModal{$msg.id}" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                <h4 class="modal-title">SMS Details</h4>
-                            </div>
-                            <div class="modal-body">
-                                <table class="table table-bordered">
-                                    <tr><th>ID</th><td>{$msg.id}</td></tr>
-                                    <tr><th>Recipient</th><td>{$msg.recipient}</td></tr>
-                                    <tr><th>Status</th><td>{$msg.status}</td></tr>
-                                    <tr><th>Batch ID</th><td>{$msg.batch_id|default:'N/A'}</td></tr>
-                                    <tr><th>Queued At</th><td>{$msg.queued_at}</td></tr>
-                                    <tr><th>Sent At</th><td>{$msg.sent_at|default:'N/A'}</td></tr>
-                                    <tr><th>Delivered At</th><td>{$msg.delivered_at|default:'N/A'}</td></tr>
-                                    <tr><th>Failed At</th><td>{$msg.failed_at|default:'N/A'}</td></tr>
-                                    <tr><th>Credits Used</th><td>{$msg.credits_used|default:'N/A'}</td></tr>
-                                    <tr><th>Credits Remaining</th><td>{$msg.credits_remaining|default:'N/A'}</td></tr>
-                                    <tr><th>Environment</th><td>{$msg.environment|default:'N/A'}</td></tr>
-                                    <tr><th>Retry Count</th><td>{$msg.retry_count}</td></tr>
+                            <div class="col-md-6">
+                                <table class="table table-condensed" style="background: #fff; border: 1px solid #ddd;">
+                                    <tr>
+                                        <th style="width: 30%;">Environment</th>
+                                        <td>{$msg.environment|default:'N/A'}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Retry Count</th>
+                                        <td>{$msg.retry_count}</td>
+                                    </tr>
                                     {if $msg.error_message}
-                                    <tr><th>Error</th><td><span class="text-danger">{$msg.error_message}</span></td></tr>
+                                    <tr>
+                                        <th>Error</th>
+                                        <td><span class="text-danger">{$msg.error_message}</span></td>
+                                    </tr>
                                     {/if}
                                 </table>
-                                {if $msg.raw_response}
-                                <h5>Raw API Response</h5>
-                                <pre>{$msg.raw_response}</pre>
-                                {/if}
                             </div>
                         </div>
-                    </div>
-                </div>
+                        {if $msg.raw_response}
+                        <div style="margin-top: 15px;">
+                            <h5>Raw API Response</h5>
+                            <pre style="background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto;"><code>{$msg.raw_response}</code></pre>
+                        </div>
+                        {/if}
+                    </td>
+                </tr>
                 {/foreach}
             </tbody>
         </table>
@@ -158,7 +169,34 @@
     </div>
 </div>
 
+<style>
+.detail-row {
+    transition: background-color 0.2s ease;
+}
+.detail-row:hover {
+    background-color: #f0f0f0;
+}
+</style>
+
 <script>
+function toggleMessage(id) {
+    var row = document.getElementById('messageRow' + id);
+    if (row.style.display === 'none') {
+        row.style.display = 'table-row';
+    } else {
+        row.style.display = 'none';
+    }
+}
+
+function toggleDetails(id) {
+    var row = document.getElementById('detailRow' + id);
+    if (row.style.display === 'none') {
+        row.style.display = 'table-row';
+    } else {
+        row.style.display = 'none';
+    }
+}
+
 function resendSMS(id) {
     if (confirm('Are you sure you want to resend this SMS?')) {
         // Implement resend functionality
@@ -166,3 +204,4 @@ function resendSMS(id) {
     }
 }
 </script>
+{include file="sections/footer.tpl"}

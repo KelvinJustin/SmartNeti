@@ -92,6 +92,34 @@ body {
     background-color: #12131a;
 }
 
+/* Universal Scrollbar Design */
+body {
+  --sb-track-color: #232323;
+  --sb-thumb-color: #1c2654;
+  --sb-size: 14px;
+}
+
+body::-webkit-scrollbar {
+  width: var(--sb-size)
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--sb-track-color);
+  border-radius: 3px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb-color);
+  border-radius: 3px;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  body {
+    scrollbar-color: var(--sb-thumb-color)
+                     var(--sb-track-color);
+  }
+}
+
 /* Fix compact mode icon centering and hover glitch */
 .sidebar-collapse .logo-mini {
     display: flex !important;
@@ -136,6 +164,37 @@ body {
 
 .sidebar-collapse .sidebar-menu>li>a:hover>span {
     display: none !important;
+}
+
+/* Rotate dark mode toggle when sidebar is collapsed */
+.sidebar-collapse .switch {
+    transform: rotate(90deg);
+    transition: transform 0.3s ease;
+}
+
+.switch {
+    transition: transform 0.3s ease;
+}
+
+/* Counter-rotate moon icon to keep it upright during sidebar collapse */
+.sidebar-collapse .moon svg {
+    transform: rotate(-90deg);
+    transition: transform 0.3s ease;
+}
+
+.moon svg {
+    transition: transform 0.3s ease;
+}
+
+/* Disable moon hover animation when sidebar is collapsed */
+.sidebar-collapse .switch:hover .moon svg {
+    animation: none;
+}
+
+/* Center only the switch in sidebar menu item */
+.sidebar-menu > li > .switch {
+    display: block;
+    margin: 10px auto;
 }
 
 /* Logo styles */
@@ -531,8 +590,8 @@ body {
   font-size: 17px;
   position: relative;
   display: inline-block;
-  width: 64px;
-  height: 34px;
+  width: 45px;
+  height: 24px;
   margin-top: 8px;
   margin-bottom: 8px;
 }
@@ -552,14 +611,14 @@ body {
   bottom: 0;
   background-color: #73C0FC;
   transition: .4s;
-  border-radius: 30px;
+  border-radius: 24px;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 30px;
-  width: 30px;
+  height: 20px;
+  width: 20px;
   border-radius: 20px;
   left: 2px;
   bottom: 2px;
@@ -570,21 +629,21 @@ body {
 
 .sun svg {
   position: absolute;
-  top: 6px;
-  left: 36px;
+  top: 4px;
+  left: 24px;
   z-index: 1;
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
 }
 
 .moon svg {
   fill: #73C0FC;
   position: absolute;
-  top: 5px;
-  left: 5px;
+  top: 4px;
+  left: 4px;
   z-index: 1;
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
 }
 
 .switch:hover .sun svg {
@@ -628,7 +687,7 @@ body {
 }
 
 .input:checked + .slider:before {
-  transform: translateX(30px);
+  transform: translateX(23px);
 }
 
 /* dark mode styles start here - SmartNeti Professional Design System */
@@ -758,6 +817,260 @@ body {
     color: #e3e1ec;
     border: 1px solid;
     border-color: #464554;
+}
+
+.greeting-container {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 1.5s ease-out;
+    overflow: hidden;
+}
+
+.greeting-container.vanishing {
+    opacity: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.greeting-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #09090b;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.dark-mode .greeting-text {
+    color: #e3e1ec;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.carousel {
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    background-color: #f4f4f5;
+}
+
+.dark-mode .carousel {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    background-color: #1e2029;
+}
+
+ul.slides {
+    display: block;
+    position: relative;
+    height: 350px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    list-style: none;
+}
+
+@media (max-width: 768px) {
+    .carousel {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    
+    ul.slides {
+        height: 200px;
+    }
+}
+
+.slides * {
+    user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+ul.slides input {
+    display: none; 
+}
+
+.slide-container { 
+    display: block; 
+}
+
+.slide-image {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    opacity: 0;
+    transition: all .7s ease-in-out;
+}   
+
+.slide-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.carousel-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    font-size: 100px;
+    line-height: 100%;
+    color: #fff;
+}
+
+.carousel-controls label {
+    display: none;
+    position: absolute;
+    padding: 0 20px;
+    opacity: 0;
+    transition: opacity .2s;
+    cursor: pointer;
+}
+
+.slide-image:hover + .carousel-controls label{
+    opacity: 0.5;
+}
+
+.carousel-controls label:hover {
+    opacity: 1;
+}
+
+.carousel-controls .prev-slide {
+    width: 49%;
+    text-align: left;
+    left: 0;
+}
+
+.carousel-controls .next-slide {
+    width: 49%;
+    text-align: right;
+    right: 0;
+}
+
+.carousel-dots {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 20px;
+    z-index: 999;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.carousel:hover .carousel-dots {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .carousel-dots {
+        display: none;
+    }
+}
+
+.carousel-dots .carousel-dot {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #fff;
+    opacity: 0.5;
+    margin: 10px;
+}
+
+input:checked + .slide-container .slide-image {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 1s ease-in-out;
+}
+
+input:checked + .slide-container .carousel-controls label {
+     display: block; 
+}
+
+input#img-1:checked ~ .carousel-dots label#img-dot-1,
+input#img-2:checked ~ .carousel-dots label#img-dot-2,
+input#img-3:checked ~ .carousel-dots label#img-dot-3,
+input#img-4:checked ~ .carousel-dots label#img-dot-4,
+input#img-5:checked ~ .carousel-dots label#img-dot-5,
+input#img-6:checked ~ .carousel-dots label#img-dot-6 {
+	opacity: 1;
+}
+
+input:checked + .slide-container .nav label { display: block; }
+
+/* CSS-only auto-scroll */
+@keyframes slideCycle {
+    0%, 32% {
+        opacity: 1;
+        z-index: 2;
+    }
+    33%, 100% {
+        opacity: 0;
+        z-index: 1;
+    }
+}
+
+.slide-container:nth-child(2) .slide-image {
+    animation: slideCycle 60s infinite;
+    animation-delay: 0s;
+}
+
+.slide-container:nth-child(4) .slide-image {
+    animation: slideCycle 60s infinite;
+    animation-delay: 20s;
+}
+
+.slide-container:nth-child(6) .slide-image {
+    animation: slideCycle 60s infinite;
+    animation-delay: 40s;
+}
+
+/* Auto-cycle dots */
+.carousel-dots .carousel-dot {
+    animation: dotCycle 60s infinite;
+}
+
+.carousel-dots .carousel-dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.carousel-dots .carousel-dot:nth-child(2) {
+    animation-delay: 20s;
+}
+
+.carousel-dots .carousel-dot:nth-child(3) {
+    animation-delay: 40s;
+}
+
+@keyframes dotCycle {
+    0%, 32% {
+        opacity: 1;
+    }
+    33%, 100% {
+        opacity: 0.5;
+    }
 }
 
 /* SmartNeti Professional Tables - Seamless Container Integration */
