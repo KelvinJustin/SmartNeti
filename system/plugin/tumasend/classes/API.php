@@ -138,10 +138,11 @@ class API
             throw new \Exception('Invalid JSON response: ' . $response);
         }
         
-        // Handle HTTP errors
+        // Handle HTTP errors - include full response in exception
         if ($httpCode >= 400) {
             $errorMessage = $decoded['error'] ?? $decoded['message'] ?? 'Unknown error';
-            throw new \Exception('API error (' . $httpCode . '): ' . $errorMessage);
+            $fullError = 'API error (' . $httpCode . '): ' . $errorMessage . ' | Raw: ' . $response;
+            throw new \Exception($fullError);
         }
         
         // Handle rate limiting
