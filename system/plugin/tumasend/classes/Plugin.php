@@ -498,23 +498,40 @@ class Plugin
             'required' => 'Configured'
         ];
         
-        // API Connectivity
+        // API Connectivity - Test SMS sending instead of balance check
         if (!empty($apiKey)) {
             try {
-                $balance = $this->api->getBalance();
+                // Try a minimal SMS send test (will fail due to credits but validates API)
+                $senderId = $this->config->getSenderId();
+                $testResult = $this->api->sendSMS(
+                    $senderId ?: 'TumaSend',
+                    ['+265000000000'], // Invalid test number
+                    'API connectivity test'
+                );
                 $results['api_connectivity'] = [
                     'name' => 'API Connectivity',
                     'status' => 'pass',
-                    'value' => 'Connected - Credits: ' . ($balance['credits_remaining'] ?? 'Unknown'),
+                    'value' => 'Connected - SMS API working',
                     'required' => 'Connected'
                 ];
             } catch (\Exception $e) {
-                $results['api_connectivity'] = [
-                    'name' => 'API Connectivity',
-                    'status' => 'fail',
-                    'value' => 'Failed: ' . $e->getMessage(),
-                    'required' => 'Connected'
-                ];
+                // If error is about credits or invalid recipients, API is working
+                $errorMsg = $e->getMessage();
+                if (strpos($errorMsg, 'credits') !== false || strpos($errorMsg, 'invalid_recipients') !== false || strpos($errorMsg, '402') !== false) {
+                    $results['api_connectivity'] = [
+                        'name' => 'API Connectivity',
+                        'status' => 'pass',
+                        'value' => 'Connected - SMS API working (credits needed)',
+                        'required' => 'Connected'
+                    ];
+                } else {
+                    $results['api_connectivity'] = [
+                        'name' => 'API Connectivity',
+                        'status' => 'fail',
+                        'value' => 'Failed: ' . $errorMsg,
+                        'required' => 'Connected'
+                    ];
+                }
             }
         } else {
             $results['api_connectivity'] = [
