@@ -102,7 +102,17 @@ class API
         // Balance endpoint requires x-system-key, SMS send requires x-api-key
         $headerKey = (strpos($url, '/balance') !== false) ? 'x-system-key' : 'x-api-key';
         
+        // Debug logging
+        error_log("TumaSend API Request: URL=$url, Method=$method, Header=$headerKey, APIKey=" . substr($apiKey, 0, 20) . "...");
+        
         $ch = curl_init();
+        
+        $headers = [
+            'Content-Type: application/json',
+            $headerKey . ': ' . $apiKey
+        ];
+        
+        error_log("TumaSend Headers: " . print_r($headers, true));
         
         curl_setopt_array($ch, [
             CURLOPT_URL => $url,
@@ -111,19 +121,21 @@ class API
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                $headerKey . ': ' . $apiKey
-            ]
+            CURLOPT_HTTPHEADER => $headers
         ]);
         
         if ($method === 'POST' && $data !== null) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            $jsonData = json_encode($data);
+            error_log("TumaSend POST Data: " . $jsonData);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
         }
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
+        
+        error_log("TumaSend Response: HTTP=$httpCode, Error=$error, Response=$response");
+        
         curl_close($ch);
         
         if ($error) {
