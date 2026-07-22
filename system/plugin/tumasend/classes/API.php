@@ -109,7 +109,7 @@ class API
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
-                'x-api-key: ' . $apiKey
+                'x-system-key: ' . $apiKey
             ]
         ]);
         
