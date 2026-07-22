@@ -505,7 +505,7 @@ class Plugin
                 $senderId = $this->config->getSenderId();
                 $testResult = $this->api->sendSMS(
                     $senderId ?: 'TumaSend',
-                    ['+265000000000'], // Invalid test number
+                    ['+265893233816'], // Valid Malawi test number
                     'API connectivity test'
                 );
                 $results['api_connectivity'] = [
@@ -515,9 +515,9 @@ class Plugin
                     'required' => 'Connected'
                 ];
             } catch (\Exception $e) {
-                // If error is about credits or invalid recipients, API is working
+                // If error is about credits, API is working
                 $errorMsg = $e->getMessage();
-                if (strpos($errorMsg, 'credits') !== false || strpos($errorMsg, 'invalid_recipients') !== false || strpos($errorMsg, '402') !== false) {
+                if (strpos($errorMsg, 'credits') !== false || strpos($errorMsg, '402') !== false) {
                     $results['api_connectivity'] = [
                         'name' => 'API Connectivity',
                         'status' => 'pass',
