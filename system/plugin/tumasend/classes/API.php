@@ -98,6 +98,10 @@ class API
             throw new \Exception('API key not configured');
         }
         
+        // Determine header based on endpoint
+        // Balance endpoint requires x-system-key, SMS send requires x-api-key
+        $headerKey = (strpos($url, '/balance') !== false) ? 'x-system-key' : 'x-api-key';
+        
         $ch = curl_init();
         
         curl_setopt_array($ch, [
@@ -109,7 +113,7 @@ class API
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
-                'x-system-key: ' . $apiKey
+                $headerKey . ': ' . $apiKey
             ]
         ]);
         
