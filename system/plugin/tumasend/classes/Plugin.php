@@ -515,23 +515,15 @@ class Plugin
                     'required' => 'Connected'
                 ];
             } catch (\Exception $e) {
-                // If error is about credits, API is working
+                // Show actual error details
                 $errorMsg = $e->getMessage();
-                if (strpos($errorMsg, 'credits') !== false || strpos($errorMsg, '402') !== false) {
-                    $results['api_connectivity'] = [
-                        'name' => 'API Connectivity',
-                        'status' => 'pass',
-                        'value' => 'Connected - SMS API working (credits needed)',
-                        'required' => 'Connected'
-                    ];
-                } else {
-                    $results['api_connectivity'] = [
-                        'name' => 'API Connectivity',
-                        'status' => 'fail',
-                        'value' => 'Failed: ' . $errorMsg,
-                        'required' => 'Connected'
-                    ];
-                }
+                $results['api_connectivity'] = [
+                    'name' => 'API Connectivity',
+                    'status' => 'fail',
+                    'value' => 'Failed: ' . $errorMsg,
+                    'required' => 'Connected',
+                    'details' => $errorMsg
+                ];
             }
         } else {
             $results['api_connectivity'] = [
