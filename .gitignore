@@ -18,6 +18,8 @@ system/paymentgateway/**
 !system/paymentgateway/ui/
 !system/paymentgateway/ui/index.html
 !system/paymentgateway/index.html
+!system/paymentgateway/paychangu.php
+!system/paymentgateway/ui/paychangu.tpl
 !system/plugin/ui/
 system/plugin/ui/*
 !system/plugin/ui/index.html
