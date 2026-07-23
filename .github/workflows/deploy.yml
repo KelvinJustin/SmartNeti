@@ -1,25 +1,20 @@
-name: Deploy SmartNeti
+name: SmartNeti Auto Deploy
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
     runs-on: self-hosted
 
     steps:
-      - name: Update SmartNeti
+      - name: Deploy latest code
         run: |
-          cd /var/www/html
+          cd /var/www/html/SmartNeti
           git fetch origin
-          git reset --hard origin/master
-
-      - name: Clear cache
-        run: |
-          rm -rf /var/www/html/ui/compiled/*
-          rm -rf /var/www/html/ui/cache/*
+          git reset --hard origin/main
 
       - name: Reload Apache
         run: |
