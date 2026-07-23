@@ -15,10 +15,6 @@ if (isset($routes['1'])) {
 }
 
 $otpPath = $CACHE_PATH . File::pathFixer('/sms/');
-if (!file_exists($otpPath)) {
-    mkdir($otpPath, 0777, true);
-    touch($otpPath . 'index.html');
-}
 
 switch ($do) {
     case 'post':
