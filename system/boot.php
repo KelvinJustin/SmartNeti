@@ -139,12 +139,15 @@ try {
         }
     }
 } catch (Throwable $e) {
+    $error_log = $CACHE_PATH . '/error.log';
+    file_put_contents($error_log, date('Y-m-d H:i:s') . " - " . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n\n", FILE_APPEND);
     Message::sendTelegram(
         "Sistem Error.\n" .
             $e->getMessage() . "\n" .
             $e->getTraceAsString()
     );
     if (empty($_SESSION['aid'])) {
+        $ui->assign("error_message", $e->getMessage() . '<br><pre>' . $e->getTraceAsString() . '</pre>');
         $ui->display('customer/error.tpl');
         die();
     }
@@ -153,12 +156,15 @@ try {
     $ui->display('admin/error.tpl');
     die();
 } catch (Exception $e) {
+    $error_log = $CACHE_PATH . '/error.log';
+    file_put_contents($error_log, date('Y-m-d H:i:s') . " - " . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n\n", FILE_APPEND);
     Message::sendTelegram(
         "Sistem Error.\n" .
             $e->getMessage() . "\n" .
             $e->getTraceAsString()
     );
     if (empty($_SESSION['aid'])) {
+        $ui->assign("error_message", $e->getMessage() . '<br><pre>' . $e->getTraceAsString() . '</pre>');
         $ui->display('customer/error.tpl');
         die();
     }
