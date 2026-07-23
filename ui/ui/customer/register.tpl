@@ -300,7 +300,7 @@
                     <i class="icon-speaker"></i> {Lang::T('Registration Info')}
                 </div>
                 <div class="info-content">
-                    {include file="$_path/../pages/Registration_Info.html"}
+                    {include file="$PAGES_PATH/Registration_Info.html"}
                 </div>
             </section>
 
