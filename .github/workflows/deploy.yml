@@ -1,0 +1,26 @@
+name: Deploy SmartNeti
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Update SmartNeti
+        run: |
+          cd /var/www/html
+          git fetch origin
+          git reset --hard origin/master
+
+      - name: Clear cache
+        run: |
+          rm -rf /var/www/html/ui/compiled/*
+          rm -rf /var/www/html/ui/cache/*
+
+      - name: Reload Apache
+        run: |
+          sudo systemctl reload apache2
