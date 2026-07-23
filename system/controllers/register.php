@@ -15,6 +15,10 @@ if (isset($routes['1'])) {
 }
 
 $otpPath = $CACHE_PATH . File::pathFixer('/sms/');
+if (!file_exists($otpPath)) {
+    mkdir($otpPath, 0777, true);
+    touch($otpPath . 'index.html');
+}
 
 switch ($do) {
     case 'post':
@@ -52,7 +56,7 @@ switch ($do) {
 
         // OTP verification if OTP is enabled
         if ($_c['sms_otp_registration'] == 'yes') {
-            $otpPath .= sha1("$phone_number" . $db_pass ?? '') . ".txt";
+            $otpPath .= sha1("$phone_number$db_pass") . ".txt";
             run_hook('validate_otp'); #HOOK
             // Expire after 10 minutes
             if (file_exists($otpPath) && time() - filemtime($otpPath) > 1200) {
@@ -203,7 +207,7 @@ switch ($do) {
                     mkdir($otpPath);
                     touch($otpPath . 'index.html');
                 }
-                $otpPath .= sha1($phone_number . ($db_pass ?? '')) . ".txt";
+                $otpPath .= sha1($phone_number . $db_pass) . ".txt";
                 if (file_exists($otpPath) && time() - filemtime($otpPath) < 600) {
                     $ui->assign('phone_number', $phone_number);
                     $ui->assign('notify', 'Please wait ' . (600 - (time() - filemtime($otpPath))) . ' seconds before sending another SMS');
