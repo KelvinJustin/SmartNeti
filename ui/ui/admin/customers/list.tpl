@@ -29,81 +29,25 @@
     #customerTable thead th {
         position: sticky;
         top: 0;
-        background-color: rgba(39, 42, 53, 0.95);
+        background-color: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(4px);
-        color: #9ca3af;
+        color: #374151;
         font-weight: 600;
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         padding: 16px;
-        border-bottom: 1px solid #2d3342;
+        border-bottom: 1px solid #e5e7eb;
         z-index: 10;
     }
 
     #customerTable tbody td {
         padding: 16px;
         font-size: 0.875rem;
-        border-bottom: 1px solid #2d3342;
+        border-bottom: 1px solid #e5e7eb;
         vertical-align: middle;
         transition: background-color 0.15s ease;
-        color: #f3f4f6;
-    }
-
-    /* Light mode support */
-    @media (prefers-color-scheme: light) {
-        #customerTable thead th {
-            background-color: rgba(255, 255, 255, 0.95);
-            color: #374151;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        #customerTable tbody td {
-            color: #1f2937;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        #customerTable tbody tr:hover td {
-            background-color: #f9fafb;
-        }
-
-        #customerTable tbody tr.danger td {
-            background-color: rgba(239, 68, 68, 0.1);
-        }
-
-        #customerTable tbody tr.danger:hover td {
-            background-color: rgba(239, 68, 68, 0.2);
-        }
-
-        #customerTable .customer-avatar {
-            background-color: #e5e7eb;
-            border-color: #e5e7eb;
-        }
-
-        .btn-circle {
-            background-color: #f9fafb;
-            border-color: #e5e7eb;
-            color: #6b7280;
-        }
-
-        .btn-circle:hover {
-            color: #1f2937;
-            border-color: #3b82f6;
-            background-color: rgba(59, 130, 246, 0.1);
-        }
-
-        .action-group {
-            border-color: #e5e7eb;
-        }
-
-        .btn-action {
-            color: #1f2937;
-            border-right-color: #e5e7eb;
-        }
-
-        .btn-action:hover {
-            background-color: #f9fafb;
-        }
+        color: #1f2937;
     }
 
     #customerTable tbody tr:last-child td {
@@ -111,7 +55,7 @@
     }
 
     #customerTable tbody tr:hover td {
-        background-color: #272a35;
+        background-color: #f9fafb;
     }
 
     #customerTable tbody tr.danger td {
@@ -136,9 +80,9 @@
         height: 32px;
         border-radius: 50%;
         object-fit: cover;
-        background-color: #2d3342;
+        background-color: #e5e7eb;
         display: inline-block;
-        border: 2px solid #2d3342;
+        border: 2px solid #e5e7eb;
     }
 
     /* Circular contact icons */
@@ -151,9 +95,9 @@
         width: 32px;
         height: 32px;
         border-radius: 50%;
-        background-color: #272a35;
-        border: 1px solid #2d3342;
-        color: #9ca3af;
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        color: #6b7280;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -163,7 +107,7 @@
     }
 
     .btn-circle:hover {
-        color: #f3f4f6;
+        color: #1f2937;
         border-color: #3b82f6;
         background-color: rgba(59, 130, 246, 0.1);
     }
@@ -180,19 +124,19 @@
 
     .status-active {
         background-color: rgba(16, 185, 129, 0.15);
-        color: #34d399;
+        color: #059669;
         border: 1px solid rgba(16, 185, 129, 0.2);
     }
 
     .status-suspended {
         background-color: rgba(245, 158, 11, 0.15);
-        color: #fbbf24;
+        color: #d97706;
         border: 1px solid rgba(245, 158, 11, 0.2);
     }
 
     .status-disabled {
         background-color: rgba(239, 68, 68, 0.15);
-        color: #f87171;
+        color: #dc2626;
         border: 1px solid rgba(239, 68, 68, 0.2);
     }
 
@@ -201,7 +145,7 @@
         display: inline-flex;
         border-radius: 6px;
         overflow: hidden;
-        border: 1px solid #2d3342;
+        border: 1px solid #e5e7eb;
     }
 
     .btn-action {
@@ -211,8 +155,8 @@
         cursor: pointer;
         border: none;
         background-color: transparent;
-        color: #f3f4f6;
-        border-right: 1px solid #2d3342;
+        color: #1f2937;
+        border-right: 1px solid #e5e7eb;
         transition: background-color 0.2s;
         text-decoration: none;
         display: inline-block;
@@ -223,18 +167,104 @@
     }
 
     .btn-action:hover {
+        background-color: #f9fafb;
+    }
+
+    .btn-action.view { color: #0d9488; }
+    .btn-action.edit { color: #0891b2; }
+    .btn-action.sync { color: #0d9488; }
+    .btn-action.recharge { color: #2563eb; }
+
+    .btn-action:hover.view { background-color: rgba(13, 148, 136, 0.1); }
+    .btn-action:hover.edit { background-color: rgba(8, 145, 178, 0.1); }
+    .btn-action:hover.sync { background-color: rgba(13, 148, 136, 0.1); }
+    .btn-action:hover.recharge { background-color: rgba(37, 99, 235, 0.1); }
+
+    /* Dark mode support */
+    body.dark-mode #customerTable thead th,
+    [data-theme="dark"] #customerTable thead th {
+        background-color: rgba(39, 42, 53, 0.95);
+        color: #9ca3af;
+        border-bottom: 1px solid #2d3342;
+    }
+
+    body.dark-mode #customerTable tbody td,
+    [data-theme="dark"] #customerTable tbody td {
+        color: #f3f4f6;
+        border-bottom: 1px solid #2d3342;
+    }
+
+    body.dark-mode #customerTable tbody tr:hover td,
+    [data-theme="dark"] #customerTable tbody tr:hover td {
         background-color: #272a35;
     }
 
-    .btn-action.view { color: #14b8a6; }
-    .btn-action.edit { color: #06b6d4; }
-    .btn-action.sync { color: #14b8a6; }
-    .btn-action.recharge { color: #3b82f6; }
+    body.dark-mode #customerTable tbody tr.danger td,
+    [data-theme="dark"] #customerTable tbody tr.danger td {
+        background-color: rgba(239, 68, 68, 0.1);
+    }
 
-    .btn-action:hover.view { background-color: rgba(20, 184, 166, 0.1); }
-    .btn-action:hover.edit { background-color: rgba(6, 182, 212, 0.1); }
-    .btn-action:hover.sync { background-color: rgba(20, 184, 166, 0.1); }
-    .btn-action:hover.recharge { background-color: rgba(59, 130, 246, 0.1); }
+    body.dark-mode #customerTable tbody tr.danger:hover td,
+    [data-theme="dark"] #customerTable tbody tr.danger:hover td {
+        background-color: rgba(239, 68, 68, 0.2);
+    }
+
+    body.dark-mode #customerTable .customer-avatar,
+    [data-theme="dark"] #customerTable .customer-avatar {
+        background-color: #2d3342;
+        border-color: #2d3342;
+    }
+
+    body.dark-mode .btn-circle,
+    [data-theme="dark"] .btn-circle {
+        background-color: #272a35;
+        border-color: #2d3342;
+        color: #9ca3af;
+    }
+
+    body.dark-mode .btn-circle:hover,
+    [data-theme="dark"] .btn-circle:hover {
+        color: #f3f4f6;
+        border-color: #3b82f6;
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    body.dark-mode .action-group,
+    [data-theme="dark"] .action-group {
+        border-color: #2d3342;
+    }
+
+    body.dark-mode .btn-action,
+    [data-theme="dark"] .btn-action {
+        color: #f3f4f6;
+        border-right-color: #2d3342;
+    }
+
+    body.dark-mode .btn-action:hover,
+    [data-theme="dark"] .btn-action:hover {
+        background-color: #272a35;
+    }
+
+    body.dark-mode .status-active,
+    [data-theme="dark"] .status-active {
+        background-color: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    body.dark-mode .status-suspended,
+    [data-theme="dark"] .status-suspended {
+        background-color: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border-color: rgba(245, 158, 11, 0.2);
+    }
+
+    body.dark-mode .status-disabled,
+    [data-theme="dark"] .status-disabled {
+        background-color: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.2);
+    }
 </style>
 
 <div class="row">
