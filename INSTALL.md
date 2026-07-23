@@ -88,6 +88,239 @@ mysql -u master -p smartneti < /var/www/html/install/radius.sql
 
 The database will now be populated with all the relevant tables.
 
+## FreeRADIUS Installation and Configuration
+
+### Install FreeRADIUS
+
+```bash
+sudo apt update
+sudo apt install -y freeradius freeradius-mysql freeradius-utils
+```
+
+### Import FreeRADIUS Schema into Existing Database
+
+Import the RADIUS tables into your existing SmartNeti database:
+
+```bash
+sudo cat /etc/freeradius/3.0/mods-config/sql/main/mysql/schema.sql | sudo mysql -u root -p smartneti
+```
+
+This will add the RADIUS tables (radcheck, radreply, radacct, nas, etc.) to your existing database without affecting your current data.
+
+### Enable SQL Module
+
+```bash
+sudo ln -s /etc/freeradius/3.0/mods-available/sql /etc/freeradius/3.0/mods-enabled/
+```
+
+### Configure SQL Module
+
+Edit the SQL module configuration:
+
+```bash
+sudo nano /etc/freeradius/3.0/mods-enabled/sql
+```
+
+Find and modify these settings to match your SmartNeti database credentials:
+
+```sql
+sql {
+    driver = "rlm_sql_mysql"
+    dialect = "mysql"
+    
+    server = "localhost"
+    port = 3306
+    login = "smartneti"
+    password = "your_db_password"
+    radius_db = "smartneti"
+    
+    read_clients = yes
+    client_table = "nas"
+    
+    # Comment out TLS section
+    #tls {
+    #    ca_file = "/etc/ssl/certs/my_ca.crt"
+    #    ...
+    #}
+    warnings = auto
+}
+```
+
+### Configure Sites-Enabled Default
+
+Edit the default sites configuration:
+
+```bash
+sudo nano /etc/freeradius/3.0/sites-enabled/default
+```
+
+Add these to the respective sections:
+
+**authorize section:**
+```
+authorize {
+    ...
+    sql
+    expiration
+    quotalimit
+    accessperiod
+    uptimelimit
+    
+    if (User-Name){
+        if("%{sql:UPDATE radacct set AcctStopTime=ADDDATE(AcctStartTime,INTERVAL AcctSessionTime SECOND), AcctTerminateCause='Clear-Stale Session' WHERE UserName='%{User-Name}' and CallingStationId='%{Calling-Station-Id}' and AcctStopTime is NULL}"){
+        }
+    }
+    ...
+}
+```
+
+**accounting section:**
+```
+accounting {
+    ...
+    sql
+    ...
+}
+```
+
+**post-auth section:**
+```
+post-auth {
+    ...
+    sql
+    ...
+}
+```
+
+**session section:**
+```
+session {
+    ...
+    sql
+    ...
+}
+```
+
+### Configure SQL Counters
+
+Edit the SQL counter configuration:
+
+```bash
+sudo nano /etc/freeradius/3.0/mods-available/sqlcounter
+```
+
+Add at the end:
+
+```
+sqlcounter accessperiod {
+    sql_module_instance = sql
+    dialect = ${modules.sql.dialect}
+    counter_name = Max-Access-Period-Time
+    check_name = Access-Period
+    key = User-Name
+    reset = never
+    $INCLUDE ${modconfdir}/sql/counter/${dialect}/${.:instance}.conf
+}
+
+sqlcounter quotalimit {
+    sql_module_instance = sql
+    dialect = ${modules.sql.dialect}
+    counter_name = Max-Volume
+    check_name = Max-Data
+    reply_name = Mikrotik-Total-Limit
+    key = User-Name
+    reset = never
+    $INCLUDE ${modconfdir}/sql/counter/${dialect}/${.:instance}.conf
+}
+
+sqlcounter uptimelimit {
+    counter_name = 'Max-All-Session-Time'
+    check_name = 'Max-All-Session'
+    sql_module_instance = sql
+    key = 'User-Name'
+    reset = never
+    query = "SELECT SUM(AcctSessionTime) FROM radacct WHERE UserName='%{${key}}'"
+}
+```
+
+### Create Counter Configuration Files
+
+Create the access period counter configuration:
+
+```bash
+sudo nano /etc/freeradius/3.0/mods-config/sql/counter/mysql/accessperiod.conf
+```
+
+Add:
+```
+query = "\
+SELECT UNIX_TIMESTAMP() - UNIX_TIMESTAMP(AcctStartTime) \
+FROM radacct \
+WHERE UserName='%{${key}}' \
+ORDER BY AcctStartTime LIMIT 1"
+```
+
+Create the quota limit counter configuration:
+
+```bash
+sudo nano /etc/freeradius/3.0/mods-config/sql/counter/mysql/quotalimit.conf
+```
+
+Add:
+```
+query = "\
+SELECT (SUM(acctinputoctets) + SUM(acctoutputoctets)) \
+FROM radacct \
+WHERE UserName='%{${key}}'"
+```
+
+### Enable SQL Counter Module
+
+```bash
+sudo ln -s /etc/freeradius/3.0/mods-available/sqlcounter /etc/freeradius/3.0/mods-enabled/
+```
+
+### Fix Permissions
+
+```bash
+sudo chgrp -h freerad /etc/freeradius/3.0/mods-available/sql
+sudo chown -R freerad:freerad /etc/freeradius/3.0/mods-enabled/sql
+```
+
+### Test Configuration
+
+Stop the service and test in debug mode:
+
+```bash
+sudo systemctl stop freeradius
+sudo freeradius -X
+```
+
+If no errors appear, press Ctrl+C to stop and start normally:
+
+```bash
+sudo systemctl start freeradius
+sudo systemctl enable freeradius
+```
+
+### Update SmartNeti Config with RADIUS Settings
+
+Edit your SmartNeti config file:
+
+```bash
+sudo nano /var/www/html/config.php
+```
+
+Add these lines after the database configuration:
+
+```php
+// Database Radius
+$radius_host        = 'localhost';
+$radius_user        = 'smartneti';
+$radius_pass        = 'your_db_password';
+$radius_name        = 'smartneti';
+```
+
 ## SmartNeti Configuration
 
 ### Copy sample Config file and rename it
