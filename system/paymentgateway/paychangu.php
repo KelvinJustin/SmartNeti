@@ -116,6 +116,9 @@ function paychangu_create_transaction($trx, $user)
   // Generate unique transaction reference
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
   
+  // Store original URL for redirect after payment
+  $original_url = APP_URL;
+  
   $url = 'https://api.paychangu.com/payment';
   
   $fields = [
@@ -133,7 +136,8 @@ function paychangu_create_transaction($trx, $user)
     ],
     'meta' => [
       'invoice_id' => $trx['id'],
-      'username' => $user['username']
+      'username' => $user['username'],
+      'original_url' => $original_url
     ]
   ];
   
@@ -169,6 +173,7 @@ function paychangu_create_transaction($trx, $user)
       $d->pg_url_payment = $checkout_url;
       $d->pg_request = $user['id'];
       $d->expired_date = date('Y-m-d H:i:s', strtotime("+30 minutes"));
+      $d->original_url = $original_url;
       $d->save();
       
       // Redirect to PayChangu checkout
@@ -314,7 +319,9 @@ function paychangu_get_status($trx, $user)
   if ($verified) {
     // Check if already processed
     if ($trx['status'] == 2) {
-      r2(U . "order/view/" . $trx['id'], 's', Lang::T("Transaction successful."));
+      // Redirect to original URL if stored
+      $redirect_url = !empty($trx['original_url']) ? $trx['original_url'] : U . "order/view/" . $trx['id'];
+      r2($redirect_url . "order/view/" . $trx['id'], 's', Lang::T("Transaction successful."));
     } else {
       // Process the payment
       $userObj = ORM::for_table('tbl_customers')
@@ -332,7 +339,9 @@ function paychangu_get_status($trx, $user)
       $trx->status = 2;
       $trx->save();
       
-      r2(U . "order/view/" . $trx['id'], 's', Lang::T("Transaction successful."));
+      // Redirect to original URL if stored
+      $redirect_url = !empty($trx['original_url']) ? $trx['original_url'] : U;
+      r2($redirect_url . "order/view/" . $trx['id'], 's', Lang::T("Transaction successful."));
     }
   } else {
     r2(U . "order/view/" . $trx['id'], 'w', Lang::T("Transaction still unpaid."));

@@ -180,9 +180,9 @@ switch ($action) {
             $trx->status = 4;
             $trx->paid_date = date('Y-m-d H:i:s');
             $trx->save();
-            $trx = ORM::for_table('tbl_payment_gateway')
-                ->where('username', $user['username'])
-                ->find_one($trxid);
+            // Redirect to original URL if stored
+            $redirect_url = !empty($trx['original_url']) ? $trx['original_url'] : U;
+            r2($redirect_url . "order/view/" . $trxid, 'w', Lang::T("Payment cancelled"));
         }
         if (empty($trx)) {
             r2(getUrl('order/package'), 'e', Lang::T("Transaction Not found"));
