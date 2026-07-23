@@ -18,6 +18,12 @@
             <div class="panel-body">
                 {Lang::T("Sorry, the software failed to process the request, if it still happening, please tell")}
                 {$_c['CompanyName']}
+                {if isset($error_message)}
+                    <hr>
+                    <div style="background: #fff; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 12px; max-height: 400px; overflow: auto;">
+                        {$error_message}
+                    </div>
+                {/if}
             </div>
             <div class="panel-footer">
                 <a href="{$url}" id="button" class="btn btn-danger btn-block">{Lang::T('Try Again')}</a>
