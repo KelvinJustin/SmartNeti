@@ -50,6 +50,62 @@
         color: #f3f4f6;
     }
 
+    /* Light mode support */
+    @media (prefers-color-scheme: light) {
+        #customerTable thead th {
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        #customerTable tbody td {
+            color: #1f2937;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        #customerTable tbody tr:hover td {
+            background-color: #f9fafb;
+        }
+
+        #customerTable tbody tr.danger td {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        #customerTable tbody tr.danger:hover td {
+            background-color: rgba(239, 68, 68, 0.2);
+        }
+
+        #customerTable .customer-avatar {
+            background-color: #e5e7eb;
+            border-color: #e5e7eb;
+        }
+
+        .btn-circle {
+            background-color: #f9fafb;
+            border-color: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .btn-circle:hover {
+            color: #1f2937;
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .action-group {
+            border-color: #e5e7eb;
+        }
+
+        .btn-action {
+            color: #1f2937;
+            border-right-color: #e5e7eb;
+        }
+
+        .btn-action:hover {
+            background-color: #f9fafb;
+        }
+    }
+
     #customerTable tbody tr:last-child td {
         border-bottom: none;
     }
