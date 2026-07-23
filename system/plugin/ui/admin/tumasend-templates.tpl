@@ -29,14 +29,14 @@
                             <div class="form-group">
                                 <label class="control-label">Available Placeholders</label>
                                 <div class="well well-sm">
-                                    <code>{customer_name}</code> - Customer full name<br>
-                                    <code>{username}</code> - Username<br>
-                                    <code>{voucher_code}</code> - Voucher code<br>
-                                    <code>{plan_name}</code> - Plan name<br>
-                                    <code>{expiry_date}</code> - Expiration date<br>
-                                    <code>{amount}</code> - Amount<br>
-                                    <code>{invoice_number}</code> - Invoice number<br>
-                                    <code>{company_name}</code> - Company name
+                                    <code>{literal}{customer_name}{/literal}</code> - Customer full name<br>
+                                    <code>{literal}{username}{/literal}</code> - Username<br>
+                                    <code>{literal}{voucher_code}{/literal}</code> - Voucher code<br>
+                                    <code>{literal}{plan_name}{/literal}</code> - Plan name<br>
+                                    <code>{literal}{expiry_date}{/literal}</code> - Expiration date<br>
+                                    <code>{literal}{amount}{/literal}</code> - Amount<br>
+                                    <code>{literal}{invoice_number}{/literal}</code> - Invoice number<br>
+                                    <code>{literal}{company_name}{/literal}</code> - Company name
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary btn-sm">Save Template</button>
