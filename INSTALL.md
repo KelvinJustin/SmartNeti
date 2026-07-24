@@ -353,15 +353,25 @@ sudo chown -R www-data:www-data /var/www/html
 
 ## Add Cron Job
 
+The cron job must run as the `www-data` user to avoid lock file permission errors. Use the system cron directory:
+
 ```bash
-crontab -e
+sudo nano /etc/cron.d/phpnuxbill
 ```
 
-Select 1 for nano editor, then add:
+Add this line:
 
 ```cron
-0 */4 * * * cd /var/www/html/system/ && php -f cron.php
+* * * * * www-data php /var/www/html/system/cron.php >/dev/null 2>&1
 ```
+
+Then reload cron:
+
+```bash
+sudo systemctl restart cron
+```
+
+**Note:** The `www-data` field specifies which user should run the command, so there's no need for sudo. This ensures the cron job has proper permissions to create and access the lock file.
 
 ## SmartNeti GUI
 
