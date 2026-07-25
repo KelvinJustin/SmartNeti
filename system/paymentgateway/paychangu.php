@@ -117,9 +117,11 @@ function paychangu_create_transaction($trx, $user)
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
 
   // Use redirect.php for URL normalization
-  // Ensure APP_URL has trailing slash
-  $app_url = rtrim(APP_URL, '/') . '/';
-  $redirect_url = $app_url . 'redirect.php';
+  // Build the URL manually to ensure proper slash handling
+  $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
+               (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
+  $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+  $redirect_url = $protocol . $host . '/redirect.php';
 
   $url = 'https://api.paychangu.com/payment';
 
