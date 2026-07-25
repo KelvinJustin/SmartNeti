@@ -116,12 +116,8 @@ function paychangu_create_transaction($trx, $user)
   // Generate unique transaction reference
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
 
-  // Use redirect.php for URL normalization
-  // Build the URL manually to ensure proper slash handling
-  $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
-               (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
-  $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
-  $redirect_url = $protocol . $host . '/redirect.php';
+  // Use the configured return_url from database (redirect.php)
+  $return_url = $config['paychangu_return_url'];
 
   $url = 'https://api.paychangu.com/payment';
 
@@ -132,7 +128,7 @@ function paychangu_create_transaction($trx, $user)
     'first_name' => $user['fullname'] ? explode(' ', $user['fullname'])[0] : '',
     'last_name' => $user['fullname'] ? (count(explode(' ', $user['fullname'])) > 1 ? implode(' ', array_slice(explode(' ', $user['fullname']), 1)) : '') : '',
     'callback_url' => $config['paychangu_callback_url'],
-    'return_url' => $redirect_url . '?_route=order/view/' . $trx['id'],
+    'return_url' => $return_url . '?_route=order/view/' . $trx['id'],
     'tx_ref' => $tx_ref,
     'customization' => [
       'title' => $config['CompanyName'] . ' - Payment',
