@@ -8,10 +8,17 @@
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
              (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
 $server_ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['LOCAL_ADDR'] ?? 'localhost';
-$base_path = dirname($_SERVER['SCRIPT_NAME']);
 
-// Ensure base_path ends with a slash
-$base_path = rtrim($base_path, '/\\') . '/';
+// Get the base path (directory containing redirect.php)
+$script_path = $_SERVER['SCRIPT_NAME'] ?? '/redirect.php';
+$base_path = dirname($script_path);
+
+// Ensure base_path is not empty and ends with a slash
+if (empty($base_path) || $base_path == '.') {
+    $base_path = '/';
+} else {
+    $base_path = rtrim($base_path, '/\\') . '/';
+}
 
 // Get the current query string
 $query_string = $_SERVER['QUERY_STRING'] ?? '';
