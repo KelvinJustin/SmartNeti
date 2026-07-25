@@ -117,7 +117,9 @@ function paychangu_create_transaction($trx, $user)
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
 
   // Use the configured return_url from database (redirect.php)
-  $return_url = $config['paychangu_return_url'];
+  // Ensure it has proper formatting
+  $return_url = rtrim($config['paychangu_return_url'], '/');
+  $return_url .= '/redirect.php';
 
   $url = 'https://api.paychangu.com/payment';
 
