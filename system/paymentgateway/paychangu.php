@@ -116,8 +116,10 @@ function paychangu_create_transaction($trx, $user)
   // Generate unique transaction reference
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
 
-  // Use redirect.php for both callback and return URLs
+  // Use redirect.php for return_url (user-facing redirect)
+  // Use direct ngrok URL for callback_url (server-to-server webhook)
   $redirect_url = $config['paychangu_return_url'];
+  $callback_url = $config['paychangu_callback_url'];
 
   $url = 'https://api.paychangu.com/payment';
 
@@ -127,7 +129,7 @@ function paychangu_create_transaction($trx, $user)
     'email' => $user['email'] ?: '',
     'first_name' => $user['fullname'] ? explode(' ', $user['fullname'])[0] : '',
     'last_name' => $user['fullname'] ? (count(explode(' ', $user['fullname'])) > 1 ? implode(' ', array_slice(explode(' ', $user['fullname']), 1)) : '') : '',
-    'callback_url' => $redirect_url . '?_route=callback/paychangu',
+    'callback_url' => $callback_url,
     'return_url' => $redirect_url . '?_route=order/view/' . $trx['id'],
     'tx_ref' => $tx_ref,
     'customization' => [
