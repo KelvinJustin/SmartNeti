@@ -116,10 +116,8 @@ function paychangu_create_transaction($trx, $user)
   // Generate unique transaction reference
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
 
-  // Use the configured return_url from database (redirect.php)
-  // Ensure it has proper formatting
-  $return_url = rtrim($config['paychangu_return_url'], '/');
-  $return_url .= '/redirect.php';
+  // Use the configured return_url from database (already includes redirect.php)
+  $return_url = $config['paychangu_return_url'];
 
   $url = 'https://api.paychangu.com/payment';
 
