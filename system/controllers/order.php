@@ -180,9 +180,17 @@ switch ($action) {
             $trx->status = 4;
             $trx->paid_date = date('Y-m-d H:i:s');
             $trx->save();
-            // Redirect to original URL if stored
-            $redirect_url = !empty($trx['original_url']) ? $trx['original_url'] : U;
-            r2($redirect_url . "order/view/" . $trxid, 'w', Lang::T("Payment cancelled"));
+            // Redirect to original URL if stored, otherwise use server IP
+            if (!empty($trx['original_url'])) {
+                $redirect_url = rtrim($trx['original_url'], '/') . '/order/view/' . $trxid;
+            } else {
+                // Use actual server IP instead of APP_URL
+                $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
+                             (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
+                $server_ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['LOCAL_ADDR'] ?? 'localhost';
+                $redirect_url = $protocol . $server_ip . dirname($_SERVER['SCRIPT_NAME']) . '/order/view/' . $trxid;
+            }
+            r2($redirect_url, 'w', Lang::T("Payment cancelled"));
         }
         if (empty($trx)) {
             r2(getUrl('order/package'), 'e', Lang::T("Transaction Not found"));

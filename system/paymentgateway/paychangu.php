@@ -112,12 +112,16 @@ function paychangu_save_config()
 function paychangu_create_transaction($trx, $user)
 {
   global $config, $routes;
-  
+
   // Generate unique transaction reference
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
-  
+
   // Store original URL for redirect after payment
-  $original_url = APP_URL;
+  // Use the actual server IP/domain instead of APP_URL which may be ngrok
+  $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
+               (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
+  $server_ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['LOCAL_ADDR'] ?? 'localhost';
+  $original_url = $protocol . $server_ip . dirname($_SERVER['SCRIPT_NAME']);
   
   $url = 'https://api.paychangu.com/payment';
   
@@ -313,36 +317,52 @@ function paychangu_verify_transaction($tx_ref)
 function paychangu_get_status($trx, $user)
 {
   global $config;
-  
+
   $tx_ref = $trx['gateway_trx_id'];
   $verified = paychangu_verify_transaction($tx_ref);
-  
+
   if ($verified) {
     // Check if already processed
     if ($trx['status'] == 2) {
-      // Redirect to original URL if stored
-      $redirect_url = !empty($trx['original_url']) ? $trx['original_url'] : U . "order/view/" . $trx['id'];
-      r2($redirect_url . "order/view/" . $trx['id'], 's', Lang::T("Transaction successful."));
+      // Redirect to original URL if stored, otherwise use server IP
+      if (!empty($trx['original_url'])) {
+        $redirect_url = rtrim($trx['original_url'], '/') . '/order/view/' . $trx['id'];
+      } else {
+        // Use actual server IP instead of APP_URL
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
+                     (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
+        $server_ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['LOCAL_ADDR'] ?? 'localhost';
+        $redirect_url = $protocol . $server_ip . dirname($_SERVER['SCRIPT_NAME']) . '/order/view/' . $trx['id'];
+      }
+      r2($redirect_url, 's', Lang::T("Transaction successful."));
     } else {
       // Process the payment
       $userObj = ORM::for_table('tbl_customers')
         ->where('username', $trx['username'])
         ->find_one();
-      
+
       if ($userObj) {
         if (!Package::rechargeUser($userObj['id'], $trx['routers'], $trx['plan_id'], $trx['gateway'], 'PayChangu')) {
           _log("PayChangu Payment Verification Successful, But Failed to activate Package");
         }
       }
-      
+
       $trx->payment_method = 'PayChangu';
       $trx->paid_date = date('Y-m-d H:i:s');
       $trx->status = 2;
       $trx->save();
-      
-      // Redirect to original URL if stored
-      $redirect_url = !empty($trx['original_url']) ? $trx['original_url'] : U;
-      r2($redirect_url . "order/view/" . $trx['id'], 's', Lang::T("Transaction successful."));
+
+      // Redirect to original URL if stored, otherwise use server IP
+      if (!empty($trx['original_url'])) {
+        $redirect_url = rtrim($trx['original_url'], '/') . '/order/view/' . $trx['id'];
+      } else {
+        // Use actual server IP instead of APP_URL
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
+                     (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
+        $server_ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['LOCAL_ADDR'] ?? 'localhost';
+        $redirect_url = $protocol . $server_ip . dirname($_SERVER['SCRIPT_NAME']) . '/order/view/' . $trx['id'];
+      }
+      r2($redirect_url, 's', Lang::T("Transaction successful."));
     }
   } else {
     r2(U . "order/view/" . $trx['id'], 'w', Lang::T("Transaction still unpaid."));
