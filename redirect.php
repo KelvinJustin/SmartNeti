@@ -1,19 +1,20 @@
 <?php
 /**
  * Redirect handler for PayChangu payment returns
- * This file simply passes through the query string to the application routing
+ * Redirects from ngrok URL to local server IP
  */
 
 // Get the current query string
 $query_string = $_SERVER['QUERY_STRING'] ?? '';
 
-// Build the redirect URL - use the same host and protocol, just remove redirect.php
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
-             (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
-$host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+// Use HTTP for local server (HTTPS to HTTP downgrade)
+$protocol = "http://";
 
-// Redirect to the root with the query string
-$redirect_url = $protocol . $host . '/';
+// Get the actual server IP
+$server_ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['LOCAL_ADDR'] ?? '192.168.1.165';
+
+// Build the redirect URL with explicit slash
+$redirect_url = $protocol . $server_ip . '/';
 
 // If there's a query string, append it
 if (!empty($query_string)) {
