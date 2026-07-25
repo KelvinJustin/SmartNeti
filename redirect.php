@@ -10,6 +10,9 @@ $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
 $server_ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['LOCAL_ADDR'] ?? 'localhost';
 $base_path = dirname($_SERVER['SCRIPT_NAME']);
 
+// Ensure base_path ends with a slash
+$base_path = rtrim($base_path, '/\\') . '/';
+
 // Get the current query string
 $query_string = $_SERVER['QUERY_STRING'] ?? '';
 
