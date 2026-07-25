@@ -9,22 +9,11 @@ $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
              (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
 $server_ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['LOCAL_ADDR'] ?? 'localhost';
 
-// Get the base path (directory containing redirect.php)
-$script_path = $_SERVER['SCRIPT_NAME'] ?? '/redirect.php';
-$base_path = dirname($script_path);
-
-// Ensure base_path is not empty and ends with a slash
-if (empty($base_path) || $base_path == '.') {
-    $base_path = '/';
-} else {
-    $base_path = rtrim($base_path, '/\\') . '/';
-}
-
 // Get the current query string
 $query_string = $_SERVER['QUERY_STRING'] ?? '';
 
-// Build the redirect URL
-$redirect_url = $protocol . $server_ip . $base_path;
+// Build the redirect URL - redirect.php is in the root directory
+$redirect_url = $protocol . $server_ip . '/';
 
 // If there's a query string, append it
 if (!empty($query_string)) {
