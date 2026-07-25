@@ -116,9 +116,9 @@ function paychangu_create_transaction($trx, $user)
   // Generate unique transaction reference
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
 
-  // Use redirect.php for both callback_url and return_url (both are user-facing redirects)
-  // Webhook is a separate server-to-server call handled by PayChangu
-  $redirect_url = $config['paychangu_return_url'];
+  // Use direct local IP for callback_url and return_url to avoid ngrok warning
+  // Users on local network can access the server directly
+  $local_url = 'http://192.168.1.164';
 
   $url = 'https://api.paychangu.com/payment';
 
@@ -128,8 +128,8 @@ function paychangu_create_transaction($trx, $user)
     'email' => $user['email'] ?: '',
     'first_name' => $user['fullname'] ? explode(' ', $user['fullname'])[0] : '',
     'last_name' => $user['fullname'] ? (count(explode(' ', $user['fullname'])) > 1 ? implode(' ', array_slice(explode(' ', $user['fullname']), 1)) : '') : '',
-    'callback_url' => $redirect_url . '?_route=callback/paychangu',
-    'return_url' => $redirect_url . '?_route=order/view/' . $trx['id'],
+    'callback_url' => $local_url . '/?_route=callback/paychangu',
+    'return_url' => $local_url . '/?_route=order/view/' . $trx['id'],
     'tx_ref' => $tx_ref,
     'customization' => [
       'title' => $config['CompanyName'] . ' - Payment',

@@ -4,9 +4,6 @@
  * Redirects from ngrok URL to local server IP
  */
 
-// Skip ngrok browser warning
-header("ngrok-skip-browser-warning: any-value");
-
 // Get the current query string
 $query_string = $_SERVER['QUERY_STRING'] ?? '';
 
