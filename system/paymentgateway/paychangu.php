@@ -274,12 +274,62 @@ function paychangu_payment_notification()
 }
 
 
+function paychangu_callback()
+{
+  global $config, $ui;
+
+  $tx_ref = _get('tx_ref');
+
+  if (empty($tx_ref)) {
+    r2(U . 'order/package', 'e', Lang::T("Invalid transaction reference"));
+  }
+
+  // Find transaction by tx_ref
+  $trx = ORM::for_table('tbl_payment_gateway')
+    ->where('gateway_trx_id', $tx_ref)
+    ->find_one();
+
+  if (!$trx) {
+    r2(U . 'order/package', 'e', Lang::T("Transaction not found"));
+  }
+
+  // Verify transaction with PayChangu API
+  $verified = paychangu_verify_transaction($tx_ref);
+
+  if ($verified) {
+    // Payment successful - activate service
+    if ($trx['status'] != 2) {
+      $user = ORM::for_table('tbl_customers')
+        ->where('username', $trx['username'])
+        ->find_one();
+
+      if ($user) {
+        if (!Package::rechargeUser($user['id'], $trx['routers'], $trx['plan_id'], $trx['gateway'], 'PayChangu')) {
+          _log("PayChangu Payment Verification Successful, But Failed to activate Package");
+        }
+      }
+
+      $trx->payment_method = 'PayChangu';
+      $trx->paid_date = date('Y-m-d H:i:s');
+      $trx->status = 2;
+      $trx->save();
+    }
+
+    // Redirect to order view with success message
+    r2(U . 'order/view/' . $trx['id'], 's', Lang::T("Payment successful. Your service has been activated."));
+  } else {
+    // Payment not successful
+    r2(U . 'order/view/' . $trx['id'], 'w', Lang::T("Payment verification failed. Please try again or contact support."));
+  }
+}
+
+
 function paychangu_verify_transaction($tx_ref)
 {
   global $config;
-  
+
   $url = 'https://api.paychangu.com/verify-payment/' . $tx_ref;
-  
+
   $curl = curl_init();
   curl_setopt_array($curl, [
     CURLOPT_URL => $url,
@@ -293,18 +343,18 @@ function paychangu_verify_transaction($tx_ref)
   $response = curl_exec($curl);
   $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
   curl_close($curl);
-  
+
   $responseData = json_decode($response);
-  
+
   $logFile = "PayChanguVerify.json";
   $log = fopen($logFile, "a");
   fwrite($log, date('Y-m-d H:i:s') . " - TX_REF: " . $tx_ref . " - Response: " . $response . "\n");
   fclose($log);
-  
+
   if (isset($responseData->status) && $responseData->status == 'success' && isset($responseData->data->status)) {
     return $responseData->data->status == 'success';
   }
-  
+
   return false;
 }
 
