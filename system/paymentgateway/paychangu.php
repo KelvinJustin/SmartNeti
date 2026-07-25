@@ -132,7 +132,7 @@ function paychangu_create_transaction($trx, $user)
     'first_name' => $user['fullname'] ? explode(' ', $user['fullname'])[0] : '',
     'last_name' => $user['fullname'] ? (count(explode(' ', $user['fullname'])) > 1 ? implode(' ', array_slice(explode(' ', $user['fullname']), 1)) : '') : '',
     'callback_url' => $config['paychangu_callback_url'],
-    'return_url' => $config['paychangu_return_url'] ?: U . 'order/view/' . $trx['id'],
+    'return_url' => $original_url . '/order/view/' . $trx['id'],
     'tx_ref' => $tx_ref,
     'customization' => [
       'title' => $config['CompanyName'] . ' - Payment',
