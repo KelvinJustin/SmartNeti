@@ -116,15 +116,11 @@ function paychangu_create_transaction($trx, $user)
   // Generate unique transaction reference
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
 
-  // Store original URL for redirect after payment
-  // Use the actual server IP/domain instead of APP_URL which may be ngrok
-  $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
-               (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
-  $server_ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['LOCAL_ADDR'] ?? 'localhost';
-  $original_url = $protocol . $server_ip . dirname($_SERVER['SCRIPT_NAME']);
-  
+  // Use redirect.php for URL normalization
+  $redirect_url = APP_URL . 'redirect.php';
+
   $url = 'https://api.paychangu.com/payment';
-  
+
   $fields = [
     'amount' => $trx['price'],
     'currency' => $config['paychangu_currency'] ?: 'MWK',
@@ -132,7 +128,7 @@ function paychangu_create_transaction($trx, $user)
     'first_name' => $user['fullname'] ? explode(' ', $user['fullname'])[0] : '',
     'last_name' => $user['fullname'] ? (count(explode(' ', $user['fullname'])) > 1 ? implode(' ', array_slice(explode(' ', $user['fullname']), 1)) : '') : '',
     'callback_url' => $config['paychangu_callback_url'],
-    'return_url' => $original_url . '/order/view/' . $trx['id'],
+    'return_url' => $redirect_url . '?_route=order/view/' . $trx['id'],
     'tx_ref' => $tx_ref,
     'customization' => [
       'title' => $config['CompanyName'] . ' - Payment',
@@ -140,8 +136,7 @@ function paychangu_create_transaction($trx, $user)
     ],
     'meta' => [
       'invoice_id' => $trx['id'],
-      'username' => $user['username'],
-      'original_url' => $original_url
+      'username' => $user['username']
     ]
   ];
   
@@ -177,7 +172,6 @@ function paychangu_create_transaction($trx, $user)
       $d->pg_url_payment = $checkout_url;
       $d->pg_request = $user['id'];
       $d->expired_date = date('Y-m-d H:i:s', strtotime("+30 minutes"));
-      $d->original_url = $original_url;
       $d->save();
       
       // Redirect to PayChangu checkout
@@ -324,17 +318,7 @@ function paychangu_get_status($trx, $user)
   if ($verified) {
     // Check if already processed
     if ($trx['status'] == 2) {
-      // Redirect to original URL if stored, otherwise use server IP
-      if (!empty($trx['original_url'])) {
-        $redirect_url = rtrim($trx['original_url'], '/') . '/order/view/' . $trx['id'];
-      } else {
-        // Use actual server IP instead of APP_URL
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
-                     (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
-        $server_ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['LOCAL_ADDR'] ?? 'localhost';
-        $redirect_url = $protocol . $server_ip . dirname($_SERVER['SCRIPT_NAME']) . '/order/view/' . $trx['id'];
-      }
-      r2($redirect_url, 's', Lang::T("Transaction successful."));
+      r2(U . "order/view/" . $trx['id'], 's', Lang::T("Transaction successful."));
     } else {
       // Process the payment
       $userObj = ORM::for_table('tbl_customers')
@@ -352,17 +336,7 @@ function paychangu_get_status($trx, $user)
       $trx->status = 2;
       $trx->save();
 
-      // Redirect to original URL if stored, otherwise use server IP
-      if (!empty($trx['original_url'])) {
-        $redirect_url = rtrim($trx['original_url'], '/') . '/order/view/' . $trx['id'];
-      } else {
-        // Use actual server IP instead of APP_URL
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ||
-                     (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
-        $server_ip = $_SERVER['SERVER_ADDR'] ?? $_SERVER['LOCAL_ADDR'] ?? 'localhost';
-        $redirect_url = $protocol . $server_ip . dirname($_SERVER['SCRIPT_NAME']) . '/order/view/' . $trx['id'];
-      }
-      r2($redirect_url, 's', Lang::T("Transaction successful."));
+      r2(U . "order/view/" . $trx['id'], 's', Lang::T("Transaction successful."));
     }
   } else {
     r2(U . "order/view/" . $trx['id'], 'w', Lang::T("Transaction still unpaid."));
