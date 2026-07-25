@@ -278,6 +278,9 @@ function paychangu_callback()
 {
   global $config, $ui;
 
+  // Skip ngrok browser warning
+  header("ngrok-skip-browser-warning: any-value");
+
   $tx_ref = _get('tx_ref');
 
   if (empty($tx_ref)) {
