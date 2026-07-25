@@ -223,18 +223,33 @@ class MikrotikHotspot
 
     function remove_plan($plan)
     {
-        $mikrotik = $this->info($plan['routers']);
-        $client = $this->getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
-        $printRequest = new RouterOS\Request(
-            '/ip hotspot user profile print .proplist=.id',
-            RouterOS\Query::where('name', $plan['name_plan'])
-        );
-        $profileID = $client->sendSync($printRequest)->getProperty('.id');
-        $removeRequest = new RouterOS\Request('/ip/hotspot/user/profile/remove');
-        $client->sendSync(
-            $removeRequest
-                ->setArgument('numbers', $profileID)
-        );
+        try {
+            $mikrotik = $this->info($plan['routers']);
+            if (!$mikrotik) {
+                _log("Mikrotik router not found for plan: " . $plan['name_plan']);
+                return;
+            }
+
+            $client = $this->getClient($mikrotik['ip_address'], $mikrotik['username'], $mikrotik['password']);
+            if (!$client) {
+                _log("Could not connect to Mikrotik router: " . $mikrotik['name']);
+                return;
+            }
+
+            $printRequest = new RouterOS\Request(
+                '/ip hotspot user profile print .proplist=.id',
+                RouterOS\Query::where('name', $plan['name_plan'])
+            );
+            $profileID = $client->sendSync($printRequest)->getProperty('.id');
+            $removeRequest = new RouterOS\Request('/ip/hotspot/user/profile/remove');
+            $client->sendSync(
+                $removeRequest
+                    ->setArgument('numbers', $profileID)
+            );
+        } catch (Exception $e) {
+            _log("Error removing plan from Mikrotik: " . $e->getMessage());
+            // Don't throw exception - allow plan deletion to continue
+        }
     }
 
     function info($name)
