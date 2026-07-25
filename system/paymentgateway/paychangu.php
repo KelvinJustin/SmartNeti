@@ -185,7 +185,8 @@ function paychangu_create_transaction($trx, $user)
     }
   } else {
     sendTelegram("PayChangu payment failed\n\nResponse: " . json_encode($responseData, JSON_PRETTY_PRINT) . "\nHTTP Code: " . $httpCode);
-    r2(U . 'order/package', 'e', Lang::T("Failed to create transaction. " . ($responseData->message ?? 'Unknown error')));
+    $errorMessage = isset($responseData->message) ? (is_object($responseData->message) ? json_encode($responseData->message) : $responseData->message) : 'Unknown error';
+    r2(U . 'order/package', 'e', Lang::T("Failed to create transaction. " . $errorMessage));
   }
 }
 
