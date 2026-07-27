@@ -418,7 +418,7 @@ On the MikroTik go to Radius and add:
 
 ### Login Redirect
 
-Download the `hotspot/login.html` file from the MikroTik and replace it with this improved redirect script that works across all devices:
+Download the `hotspot/login.html` file from the MikroTik and replace it with this redirect script:
 
 ```html
 $(if error)
