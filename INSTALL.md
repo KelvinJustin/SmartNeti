@@ -418,17 +418,53 @@ On the MikroTik go to Radius and add:
 
 ### Login Redirect
 
-Download the `hotspot/login.html` file from the MikroTik and replace it with this:
+Download the `hotspot/login.html` file from the MikroTik and replace it with this improved redirect script that works across all devices:
 
 ```html
 $(if error)
-<meta http-equiv="refresh" content="0; url=$(link-orig)&msg=$(error)&nux-key=$(chap-id)-$(chap-challenge)">
+<script>
+    // JavaScript redirect with fallback
+    var targetUrl = "$(link-orig)&msg=$(error)&nux-key=$(chap-id)-$(chap-challenge)";
+    setTimeout(function() {
+        window.location.href = targetUrl;
+    }, 100);
+</script>
+<meta http-equiv="refresh" content="1; url=$(link-orig)&msg=$(error)&nux-key=$(chap-id)-$(chap-challenge)">
+<noscript>
+    <meta http-equiv="refresh" content="2; url=$(link-orig)&msg=$(error)&nux-key=$(chap-id)-$(chap-challenge)">
+</noscript>
+<div style="text-align: center; padding: 20px; font-family: Arial, sans-serif;">
+    <h2>Redirecting...</h2>
+    <p>If you are not redirected automatically, <a href="$(link-orig)&msg=$(error)&nux-key=$(chap-id)-$(chap-challenge)">click here</a></p>
+</div>
 $(else)
-<meta http-equiv="refresh" content="0; url=http://YOUR_SMARTNETI_IP/?nux-mac=$(mac)&nux-ip=$(ip)&nux-hostname=$(hostname)&nux-router=1&nux-key=$(chap-id)-$(chap-challenge)">
+<script>
+    // JavaScript redirect with fallback
+    var targetUrl = "http://YOUR_SMARTNETI_IP/?nux-mac=$(mac)&nux-ip=$(ip)&nux-hostname=$(hostname)&nux-router=1&nux-key=$(chap-id)-$(chap-challenge)";
+    setTimeout(function() {
+        window.location.href = targetUrl;
+    }, 100);
+</script>
+<meta http-equiv="refresh" content="1; url=http://YOUR_SMARTNETI_IP/?nux-mac=$(mac)&nux-ip=$(ip)&nux-hostname=$(hostname)&nux-router=1&nux-key=$(chap-id)-$(chap-challenge)">
+<noscript>
+    <meta http-equiv="refresh" content="2; url=http://YOUR_SMARTNETI_IP/?nux-mac=$(mac)&nux-ip=$(ip)&nux-hostname=$(hostname)&nux-router=1&nux-key=$(chap-id)-$(chap-challenge)">
+</noscript>
+<div style="text-align: center; padding: 20px; font-family: Arial, sans-serif;">
+    <h2>Redirecting to SmartNeti...</h2>
+    <p>If you are not redirected automatically, <a href="http://YOUR_SMARTNETI_IP/?nux-mac=$(mac)&nux-ip=$(ip)&nux-hostname=$(hostname)&nux-router=1&nux-key=$(chap-id)-$(chap-challenge)">click here</a></p>
+</div>
 $(endif)
 ```
 
 **Important:** Replace `YOUR_SMARTNETI_IP` with the IP address of your SmartNeti server.
+
+**Why this improved version:**
+- JavaScript redirect is more reliable than meta refresh on most devices
+- Meta refresh fallback still works if JavaScript is disabled
+- Manual click link allows users to proceed if auto-redirect fails
+- Visual feedback shows "Redirecting..." message
+- Slight delays (100ms for JS, 1-2s for meta refresh) prevent instant loops
+- Works across all devices including mobile phones, tablets, and PCs
 
 ### Configure Hotspot Profile
 
