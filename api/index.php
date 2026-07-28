@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * SmartNeti Mobile API
+ * Customer-facing REST API for Flutter mobile application
+ */
+
+// Enable CORS for mobile app
+if ($_SERVER['REQUEST_METHOD'] === "OPTIONS" || $_SERVER['REQUEST_METHOD'] === "HEAD") {
+    header('Access-Control-Allow-Origin: *');
+    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    header("HTTP/1.1 200 OK");
+    die();
+}
+
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+
+// Error handling for JSON API
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Internal server error']);
+    exit;
+});
+
+set_exception_handler(function($exception) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => $exception->getMessage()]);
+    exit;
+});
+
+// Get request method and path
+$method = $_SERVER['REQUEST_METHOD'];
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$path = str_replace('/api', '', $path);
+$path = trim($path, '/');
+
+// Route the request
+$segments = explode('/', $path);
+$endpoint = $segments[0] ?? '';
+
+// Include the API bootstrap
+require_once __DIR__ . '/bootstrap.php';
+
+// Route to appropriate endpoint handler
+switch ($endpoint) {
+    case 'login':
+        require_once __DIR__ . '/endpoints/login.php';
+        break;
+    case 'profile':
+        require_once __DIR__ . '/endpoints/profile.php';
+        break;
+    case 'packages':
+        require_once __DIR__ . '/endpoints/packages.php';
+        break;
+    case 'balance':
+        require_once __DIR__ . '/endpoints/balance.php';
+        break;
+    case 'payments':
+        require_once __DIR__ . '/endpoints/payments.php';
+        break;
+    case 'support':
+        require_once __DIR__ . '/endpoints/support.php';
+        break;
+    default:
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
+        break;
+}
