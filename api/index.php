@@ -17,14 +17,21 @@ if ($_SERVER['REQUEST_METHOD'] === "OPTIONS" || $_SERVER['REQUEST_METHOD'] === "
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
+// Enable error logging
+ini_set('error_log', '/var/log/php_errors.log');
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Error handling for JSON API
 set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("Error: $errstr in $errfile on line $errline");
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Internal server error']);
     exit;
 });
 
 set_exception_handler(function($exception) {
+    error_log("Exception: " . $exception->getMessage() . " in " . $exception->getFile() . " on line " . $exception->getLine());
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $exception->getMessage()]);
     exit;
