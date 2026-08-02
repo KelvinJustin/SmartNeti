@@ -48,6 +48,9 @@ switch ($endpoint) {
     case 'login':
         require_once __DIR__ . '/endpoints/login.php';
         break;
+    case 'register':
+        require_once __DIR__ . '/endpoints/register.php';
+        break;
     case 'profile':
         require_once __DIR__ . '/endpoints/profile.php';
         break;

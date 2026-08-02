@@ -10,7 +10,7 @@ http://your-server-ip/api
 
 ## Authentication
 
-All endpoints except `/api/login` require authentication using a Bearer token.
+All endpoints except `/api/login` and `/api/register` require authentication using a Bearer token.
 
 ### Token Format
 
@@ -75,6 +75,81 @@ Customer login endpoint.
 {
   "success": false,
   "message": "Account is Banned"
+}
+```
+
+---
+
+### POST /api/register
+
+Customer registration endpoint. Creates a new customer account.
+
+**Request Body:**
+```json
+{
+  "username": "new_customer",
+  "password": "secure_password",
+  "cpassword": "secure_password",
+  "fullname": "John Doe",
+  "email": "john@example.com",
+  "address": "123 Main Street",
+  "phone_number": "+265123456789",
+  "otp_code": "123456"
+}
+```
+
+**Field Descriptions:**
+- `username` (required): Username (3-35 characters)
+- `password` (required): Password (3-35 characters)
+- `cpassword` (required): Password confirmation (must match password)
+- `fullname` (required if enabled): Full name (3-36 characters)
+- `email` (required if enabled): Valid email address
+- `address` (optional): Physical address
+- `phone_number` (required if OTP enabled): Phone number for OTP verification
+- `otp_code` (required if OTP enabled): 6-digit OTP code sent to phone
+
+**Photo Upload:**
+If photo registration is enabled, send photo as multipart/form-data with field name `photo`.
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": 10,
+      "username": "new_customer",
+      "fullname": "John Doe",
+      "email": "john@example.com",
+      "phone": "+265123456789",
+      "status": "Active"
+    }
+  },
+  "message": "Registration successful"
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "message": "Username should be between 3 to 35 characters"
+}
+```
+
+**Error Response (403):**
+```json
+{
+  "success": false,
+  "message": "Registration is disabled"
+}
+```
+
+**Error Response (409):**
+```json
+{
+  "success": false,
+  "message": "Account already exists"
 }
 ```
 
