@@ -43,13 +43,13 @@ function getAuthenticatedUserId() {
     
     // Validate token format: c.uid.time.sha1
     $parts = explode('.', $token);
-    if (count($parts) !== 3) {
+    if (count($parts) !== 4) {
         error_log("Invalid token format, parts: " . count($parts));
         return null;
     }
     
-    list($type, $uid, $hash) = $parts;
-    error_log("Token parts - type: $type, uid: $uid");
+    list($type, $uid, $time, $hash) = $parts;
+    error_log("Token parts - type: $type, uid: $uid, time: $time");
     
     // Only customer tokens are allowed
     if ($type !== 'c') {
