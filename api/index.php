@@ -29,6 +29,11 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
         error_log("Radius warning (ignored): $errstr in $errfile on line $errline");
         return true;
     }
+    // Ignore Message.php deprecation warnings
+    if (strpos($errfile, 'Message.php') !== false && strpos($errstr, 'deprecated') !== false) {
+        error_log("Message deprecation warning (ignored): $errstr in $errfile on line $errline");
+        return true;
+    }
     error_log("Error: $errstr in $errfile on line $errline");
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Internal server error']);
