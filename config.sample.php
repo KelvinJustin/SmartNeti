@@ -16,6 +16,7 @@ $db_host    = "localhost"; # Database Host
 $db_port    = "";   # Database Port. Keep it blank if you are un sure.
 $db_user    = "root"; # Database Username
 $db_pass    = ""; # Database Password
+$db_password = $db_pass; # Compatibility for PHP 8.5
 $db_name    = "phpnuxbill"; # Database Name
 
 
