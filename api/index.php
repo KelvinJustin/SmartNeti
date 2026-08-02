@@ -24,6 +24,11 @@ error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
 
 // Error handling for JSON API
 set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    // Ignore Radius.php errors - they are warnings, not fatal
+    if (strpos($errfile, 'Radius.php') !== false) {
+        error_log("Radius warning (ignored): $errstr in $errfile on line $errline");
+        return true;
+    }
     error_log("Error: $errstr in $errfile on line $errline");
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Internal server error']);
