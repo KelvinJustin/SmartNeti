@@ -31,39 +31,50 @@ function getAuthenticatedUserId() {
     $headers = getallheaders();
     $authHeader = $headers['Authorization'] ?? '';
     
+    error_log("Auth header: " . $authHeader);
+    
     if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+        error_log("No valid auth header found");
         return null;
     }
     
     $token = $matches[1];
+    error_log("Token: " . $token);
     
     // Validate token format: c.uid.time.sha1
     $parts = explode('.', $token);
     if (count($parts) !== 3) {
+        error_log("Invalid token format, parts: " . count($parts));
         return null;
     }
     
     list($type, $uid, $hash) = $parts;
+    error_log("Token parts - type: $type, uid: $uid");
     
     // Only customer tokens are allowed
     if ($type !== 'c') {
+        error_log("Invalid token type: $type");
         return null;
     }
     
     // Verify token hash
     global $db_pass;
     $expectedHash = sha1($uid . '.' . $db_pass);
+    error_log("Expected hash: $expectedHash, Received hash: $hash");
     
     if ($hash !== $expectedHash) {
+        error_log("Hash mismatch");
         return null;
     }
     
     // Check if customer exists
     $customer = ORM::for_table('tbl_customers')->where('id', $uid)->find_one();
     if (!$customer) {
+        error_log("Customer not found for uid: $uid");
         return null;
     }
     
+    error_log("Authentication successful for uid: $uid");
     return (int)$uid;
 }
 
