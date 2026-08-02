@@ -20,7 +20,7 @@ header('Access-Control-Allow-Origin: *');
 // Enable error logging
 ini_set('error_log', '/var/log/php_errors.log');
 ini_set('display_errors', 1);
-error_reporting(E_ALL);
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
 
 // Error handling for JSON API
 set_error_handler(function($errno, $errstr, $errfile, $errline) {
