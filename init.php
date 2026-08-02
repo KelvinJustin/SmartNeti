@@ -147,7 +147,7 @@ if ((!empty($radius_user) && $config['radius_enable']) || _post('radius_enable')
     ORM::configure("mysql:host=$radius_host;dbname=$radius_name", null, 'radius');
     ORM::configure('username', $radius_user, 'radius');
     ORM::configure('password', $radius_pass, 'radius');
-    ORM::configure('driver_options', array(PDO::MYSQL_ATTR_INIT_COMMAND ?? 1002 => 'SET NAMES utf8'), 'radius');
+    @ORM::configure('driver_options', array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'), 'radius');
     ORM::configure('return_result_sets', true, 'radius');
 }
 
