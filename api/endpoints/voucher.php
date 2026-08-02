@@ -42,22 +42,28 @@ if (!$user) {
 run_hook('customer_activate_voucher');
 
 // Recharge user account
-if (Package::rechargeUser($userId, $voucher['routers'], $voucher['id_plan'], "Voucher", $code)) {
-    // Mark voucher as used
-    $voucher->status = "1";
-    $voucher->used_date = date('Y-m-d H:i:s');
-    $voucher->user = $user['username'];
-    $voucher->save();
-    
-    // Run hook
-    run_hook('view_activate_voucher');
-    
-    sendJsonResponse(true, [
-        'voucher_code' => $code,
-        'plan_id' => $voucher['id_plan'],
-        'routers' => $voucher['routers'],
-        'used_date' => $voucher->used_date
-    ], 'Voucher activated successfully');
-} else {
-    sendJsonResponse(false, null, 'Failed to activate voucher', 500);
+try {
+    $result = Package::rechargeUser($userId, $voucher['routers'], $voucher['id_plan'], "Voucher", $code);
+    if ($result) {
+        // Mark voucher as used
+        $voucher->status = "1";
+        $voucher->used_date = date('Y-m-d H:i:s');
+        $voucher->user = $user['username'];
+        $voucher->save();
+        
+        // Run hook
+        run_hook('view_activate_voucher');
+        
+        sendJsonResponse(true, [
+            'voucher_code' => $code,
+            'plan_id' => $voucher['id_plan'],
+            'routers' => $voucher['routers'],
+            'used_date' => $voucher->used_date
+        ], 'Voucher activated successfully');
+    } else {
+        sendJsonResponse(false, null, 'Failed to activate voucher - recharge failed', 500);
+    }
+} catch (Exception $e) {
+    error_log("Voucher activation error: " . $e->getMessage());
+    sendJsonResponse(false, null, 'Failed to activate voucher: ' . $e->getMessage(), 500);
 }
