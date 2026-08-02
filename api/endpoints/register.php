@@ -108,7 +108,7 @@ if ($existing) {
 // Create customer
 $customer = ORM::for_table('tbl_customers')->create();
 $customer->username = alphanumeric($username, "+_.@-");
-$customer->password = Password::_ucrypt($password);
+$customer->password = Password::_crypt($password);
 $customer->fullname = $fullname;
 $customer->address = $address;
 $customer->email = $email;
