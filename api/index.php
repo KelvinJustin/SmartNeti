@@ -76,6 +76,9 @@ switch ($endpoint) {
     case 'announcement':
         require_once __DIR__ . '/endpoints/announcement.php';
         break;
+    case 'banners':
+        require_once __DIR__ . '/endpoints/banners.php';
+        break;
     case 'voucher':
         require_once __DIR__ . '/endpoints/voucher.php';
         break;

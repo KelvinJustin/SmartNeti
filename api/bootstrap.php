@@ -58,9 +58,9 @@ function getAuthenticatedUserId() {
         return null;
     }
     
-    // Check if customer exists and is active
+    // Check if customer exists
     $customer = ORM::for_table('tbl_customers')->where('id', $uid)->find_one();
-    if (!$customer || $customer['status'] !== 'Active') {
+    if (!$customer) {
         return null;
     }
     
