@@ -59,7 +59,7 @@ function getAuthenticatedUserId() {
     
     // Verify token hash
     global $db_pass;
-    $expectedHash = sha1($uid . '.' . $db_pass);
+    $expectedHash = sha1($uid . '.' . $time . '.' . $db_pass);
     error_log("Expected hash: $expectedHash, Received hash: $hash");
     
     if ($hash !== $expectedHash) {
