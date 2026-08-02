@@ -10,7 +10,7 @@ http://your-server-ip/api
 
 ## Authentication
 
-All endpoints except `/api/login` and `/api/register` require authentication using a Bearer token.
+All endpoints except `/api/login`, `/api/register`, and `/api/announcement` require authentication using a Bearer token.
 
 ### Token Format
 
@@ -150,6 +150,36 @@ If photo registration is enabled, send photo as multipart/form-data with field n
 {
   "success": false,
   "message": "Account already exists"
+}
+```
+
+---
+
+### GET /api/announcement
+
+Get customer announcement message configured by admin.
+
+**Authentication:** Not required
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "announcement": "Customer Announcement!!<br>Tomorrow holiday<br><br><br>This Announcement is for Customer Dashboard"
+  },
+  "message": "Announcement retrieved successfully"
+}
+```
+
+**Empty Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "announcement": ""
+  },
+  "message": "No announcement configured"
 }
 ```
 

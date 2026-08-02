@@ -73,6 +73,9 @@ switch ($endpoint) {
     case 'support':
         require_once __DIR__ . '/endpoints/support.php';
         break;
+    case 'announcement':
+        require_once __DIR__ . '/endpoints/announcement.php';
+        break;
     default:
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Endpoint not found']);
