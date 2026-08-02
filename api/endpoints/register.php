@@ -118,7 +118,7 @@ if ($customer->save()) {
     $userId = $customer->id();
     
     // Handle photo upload if enabled
-    if ($config['photo_register'] == 'yes' && !empty($_FILES['photo']['name']) && file_exists($_FILES['photo']['tmp_name'])) {
+    if ($config['photo_register'] == 'yes' && isset($_FILES['photo']) && !empty($_FILES['photo']['name']) && file_exists($_FILES['photo']['tmp_name'])) {
         if (function_exists('imagecreatetruecolor')) {
             global $UPLOAD_PATH;
             $hash = md5_file($_FILES['photo']['tmp_name']);
@@ -137,7 +137,7 @@ if ($customer->save()) {
             $customer->save();
         }
     }
-    if (file_exists($_FILES['photo']['tmp_name'])) {
+    if (isset($_FILES['photo']) && file_exists($_FILES['photo']['tmp_name'])) {
         unlink($_FILES['photo']['tmp_name']);
     }
     
