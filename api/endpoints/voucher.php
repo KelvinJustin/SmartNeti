@@ -9,7 +9,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     sendJsonResponse(false, null, 'Method not allowed', 405);
 }
 
-$userId = requireAuth();
+// Get authenticated user ID without status check
+$userId = getAuthenticatedUserId();
+if ($userId === null) {
+    sendJsonResponse(false, null, 'Unauthorized or invalid token', 401);
+}
 
 $body = getRequestBody();
 $code = sanitizeInput($body['code'] ?? '');
