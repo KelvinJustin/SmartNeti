@@ -185,6 +185,54 @@ Get customer announcement message configured by admin.
 
 ---
 
+### POST /api/voucher
+
+Redeem a voucher code to add credit/plan to customer account.
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "code": "ABCD-1234-EFGH-5678"
+}
+```
+
+**Field Descriptions:**
+- `code` (required): Voucher code (case-sensitive, alphanumeric with hyphens, underscores, dots, commas)
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "voucher_code": "ABCD-1234-EFGH-5678",
+    "plan_id": 1,
+    "routers": "main_router",
+    "used_date": "2026-08-02 18:00:00"
+  },
+  "message": "Voucher activated successfully"
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "message": "Voucher not valid or already used"
+}
+```
+
+**Error Response (500):**
+```json
+{
+  "success": false,
+  "message": "Failed to activate voucher"
+}
+```
+
+---
+
 ### GET /api/profile
 
 Get customer profile information including active subscriptions.
