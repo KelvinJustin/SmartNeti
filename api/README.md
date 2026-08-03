@@ -284,6 +284,54 @@ Get customer profile information including active subscriptions.
 
 ---
 
+### POST /api/profile
+
+Update customer profile information.
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "fullname": "Updated Full Name",
+  "address": "Updated Address",
+  "phonenumber": "+265987654321",
+  "email": "updated@example.com"
+}
+```
+
+**Field Descriptions:**
+- `fullname` (string, optional): Customer's full name
+- `address` (string, optional): Customer's home address
+- `phonenumber` (string, optional): Customer's phone number
+- `email` (string, optional): Customer's email address
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 5,
+    "username": "customer_username",
+    "fullname": "Updated Full Name",
+    "email": "updated@example.com",
+    "phone": "+265987654321",
+    "address": "Updated Address"
+  },
+  "message": "Profile updated successfully"
+}
+```
+
+**Error Response (401):**
+```json
+{
+  "success": false,
+  "message": "Unauthorized or invalid token"
+}
+```
+
+---
+
 ### GET /api/packages
 
 Get available internet packages for the customer's account type.
