@@ -332,6 +332,107 @@ Update customer profile information.
 
 ---
 
+### GET /api/subscriptions
+
+Get customer subscriptions including active and inactive plans.
+
+**Authentication:** Required
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 4,
+      "plan_id": 1,
+      "plan_name": "CHR",
+      "plan_type": "Hotspot",
+      "price": "500.00",
+      "routers": "main_router",
+      "recharged_on": "2026-08-03",
+      "expiration": "2031-08-02",
+      "time": "00:08:00",
+      "status": "on",
+      "is_active": true
+    }
+  ]
+}
+```
+
+**Error Response (401):**
+```json
+{
+  "success": false,
+  "message": "Unauthorized or invalid token"
+}
+```
+
+---
+
+### POST /api/subscriptions
+
+Perform actions on customer subscriptions (deactivate, sync).
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "action": "deactivate",
+  "subscription_id": 4
+}
+```
+
+**Available Actions:**
+- `deactivate`: Deactivate an active subscription
+- `sync`: Sync subscription to router (for login issues)
+
+**Field Descriptions:**
+- `action` (string, required): Action to perform - "deactivate" or "sync"
+- `subscription_id` (integer, required): ID of the subscription to perform action on
+
+**Success Response (200) - Deactivate:**
+```json
+{
+  "success": true,
+  "data": {
+    "subscription_id": 4,
+    "status": "off"
+  },
+  "message": "Subscription deactivated successfully"
+}
+```
+
+**Success Response (200) - Sync:**
+```json
+{
+  "success": true,
+  "data": {
+    "subscription_id": 4
+  },
+  "message": "Subscription synced successfully"
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "message": "Action is required"
+}
+```
+
+**Error Response (401):**
+```json
+{
+  "success": false,
+  "message": "Unauthorized or invalid token"
+}
+```
+
+---
+
 ### GET /api/packages
 
 Get available internet packages for the customer's account type.
