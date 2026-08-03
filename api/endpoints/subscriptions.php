@@ -117,6 +117,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         sendJsonResponse(true, ['subscription_id' => (int)$bill['id']], 'Subscription synced successfully');
 
+    } elseif ($action === 'login') {
+        if (!isset($input['subscription_id'])) {
+            sendJsonResponse(false, null, 'Subscription ID is required', 400);
+        }
+        if (!isset($input['ip_address'])) {
+            sendJsonResponse(false, null, 'IP address is required', 400);
+        }
+        if (!isset($input['mac_address'])) {
+            sendJsonResponse(false, null, 'MAC address is required', 400);
+        }
+
+        $bill = ORM::for_table('tbl_user_recharges')
+            ->where('id', $input['subscription_id'])
+            ->where('customer_id', $userId)
+            ->find_one();
+
+        if (!$bill) {
+            sendJsonResponse(false, null, 'Subscription not found', 404);
+        }
+
+        if ($bill['status'] != 'on') {
+            sendJsonResponse(false, null, 'Subscription is not active', 400);
+        }
+
+        $p = ORM::for_table('tbl_plans')->find_one($bill['plan_id']);
+        if ($p) {
+            $dvc = Package::getDevice($p);
+            if (file_exists($dvc)) {
+                require_once $dvc;
+                if (method_exists($p['device'], 'connect_customer')) {
+                    (new $p['device'])->connect_customer($user, $input['ip_address'], $input['mac_address'], $bill['routers']);
+                }
+            }
+        }
+
+        sendJsonResponse(true, ['subscription_id' => (int)$bill['id']], 'Internet access activated successfully');
+
+    } elseif ($action === 'logout') {
+        if (!isset($input['subscription_id'])) {
+            sendJsonResponse(false, null, 'Subscription ID is required', 400);
+        }
+
+        $bill = ORM::for_table('tbl_user_recharges')
+            ->where('id', $input['subscription_id'])
+            ->where('customer_id', $userId)
+            ->find_one();
+
+        if (!$bill) {
+            sendJsonResponse(false, null, 'Subscription not found', 404);
+        }
+
+        $p = ORM::for_table('tbl_plans')->find_one($bill['plan_id']);
+        if ($p) {
+            $dvc = Package::getDevice($p);
+            if (file_exists($dvc)) {
+                require_once $dvc;
+                if (method_exists($p['device'], 'disconnect_customer')) {
+                    (new $p['device'])->disconnect_customer($user, $bill['routers']);
+                }
+            }
+        }
+
+        sendJsonResponse(true, ['subscription_id' => (int)$bill['id']], 'Internet access deactivated successfully');
+
     } else {
         sendJsonResponse(false, null, 'Invalid action', 400);
     }

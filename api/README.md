@@ -387,10 +387,14 @@ Perform actions on customer subscriptions (deactivate, sync).
 **Available Actions:**
 - `deactivate`: Deactivate an active subscription
 - `sync`: Sync subscription to router (for login issues)
+- `login`: Activate internet access for a subscription (requires IP and MAC address)
+- `logout`: Deactivate internet access for a subscription
 
 **Field Descriptions:**
-- `action` (string, required): Action to perform - "deactivate" or "sync"
+- `action` (string, required): Action to perform - "deactivate", "sync", "login", or "logout"
 - `subscription_id` (integer, required): ID of the subscription to perform action on
+- `ip_address` (string, required for login): Customer's IP address
+- `mac_address` (string, required for login): Customer's MAC address
 
 **Success Response (200) - Deactivate:**
 ```json
@@ -412,6 +416,46 @@ Perform actions on customer subscriptions (deactivate, sync).
     "subscription_id": 4
   },
   "message": "Subscription synced successfully"
+}
+```
+
+**Request Body - Login:**
+```json
+{
+  "action": "login",
+  "subscription_id": 4,
+  "ip_address": "192.168.1.100",
+  "mac_address": "00:11:22:33:44:55"
+}
+```
+
+**Success Response (200) - Login:**
+```json
+{
+  "success": true,
+  "data": {
+    "subscription_id": 4
+  },
+  "message": "Internet access activated successfully"
+}
+```
+
+**Request Body - Logout:**
+```json
+{
+  "action": "logout",
+  "subscription_id": 4
+}
+```
+
+**Success Response (200) - Logout:**
+```json
+{
+  "success": true,
+  "data": {
+    "subscription_id": 4
+  },
+  "message": "Internet access deactivated successfully"
 }
 ```
 
