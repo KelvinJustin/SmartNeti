@@ -68,9 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $p = ORM::for_table('tbl_plans')->where('id', $bill['plan_id'])->find_one();
         if ($p) {
             $dvc = Package::getDevice($p);
-            if (file_exists($dvc)) {
-                require_once $dvc;
-                (new $p['device'])->remove_customer($user, $p);
+            global $_app_stage;
+            if ($_app_stage != 'demo') {
+                if (file_exists($dvc)) {
+                    require_once $dvc;
+                    (new $p['device'])->remove_customer($user, $p);
+                }
             }
         }
 
@@ -78,6 +81,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $bill->expiration = date('Y-m-d');
         $bill->time = date('H:i:s');
         $bill->save();
+
+        _log('User ' . $bill['username'] . ' Deactivate ' . $bill['namebp'], 'Customer', $bill['customer_id']);
+        Message::sendTelegram('User u' . $bill['username'] . ' Deactivate ' . $bill['namebp']);
 
         sendJsonResponse(true, ['subscription_id' => (int)$bill['id'], 'status' => 'off'], 'Subscription deactivated successfully');
 
@@ -104,12 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $c = ORM::for_table('tbl_customers')->find_one($bill['customer_id']);
             if ($c) {
                 $dvc = Package::getDevice($p);
-                if (file_exists($dvc)) {
-                    require_once $dvc;
-                    if (method_exists($p['device'], 'sync_customer')) {
-                        (new $p['device'])->sync_customer($c, $p);
-                    } else {
-                        (new $p['device'])->add_customer($c, $p);
+                global $_app_stage;
+                if ($_app_stage != 'demo') {
+                    if (file_exists($dvc)) {
+                        require_once $dvc;
+                        if (method_exists($p['device'], 'sync_customer')) {
+                            (new $p['device'])->sync_customer($c, $p);
+                        } else {
+                            (new $p['device'])->add_customer($c, $p);
+                        }
                     }
                 }
             }
@@ -144,10 +153,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $p = ORM::for_table('tbl_plans')->find_one($bill['plan_id']);
         if ($p) {
             $dvc = Package::getDevice($p);
-            if (file_exists($dvc)) {
-                require_once $dvc;
-                if (method_exists($p['device'], 'connect_customer')) {
-                    (new $p['device'])->connect_customer($user, $input['ip_address'], $input['mac_address'], $bill['routers']);
+            global $_app_stage;
+            if ($_app_stage != 'demo') {
+                if (file_exists($dvc)) {
+                    require_once $dvc;
+                    if (method_exists($p['device'], 'connect_customer')) {
+                        (new $p['device'])->connect_customer($user, $input['ip_address'], $input['mac_address'], $bill['routers']);
+                    }
                 }
             }
         }
@@ -171,10 +183,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $p = ORM::for_table('tbl_plans')->find_one($bill['plan_id']);
         if ($p) {
             $dvc = Package::getDevice($p);
-            if (file_exists($dvc)) {
-                require_once $dvc;
-                if (method_exists($p['device'], 'disconnect_customer')) {
-                    (new $p['device'])->disconnect_customer($user, $bill['routers']);
+            global $_app_stage;
+            if ($_app_stage != 'demo') {
+                if (file_exists($dvc)) {
+                    require_once $dvc;
+                    if (method_exists($p['device'], 'disconnect_customer')) {
+                        (new $p['device'])->disconnect_customer($user, $bill['routers']);
+                    }
                 }
             }
         }
