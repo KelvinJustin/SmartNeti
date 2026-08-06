@@ -107,8 +107,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $responseData = json_decode($response);
 
+    // Log for debugging
+    _log("PayChangu API Response: HTTP $httpCode, Response: " . $response);
+
     if ($httpCode !== 200 || !isset($responseData->data->checkout_url)) {
-        sendJsonResponse(false, null, 'Failed to create payment session: ' . ($responseData->message ?? 'Unknown error'), 500);
+        $errorMsg = 'Failed to create payment session. HTTP: ' . $httpCode . ', Response: ' . $response;
+        sendJsonResponse(false, null, $errorMsg, 500);
     }
 
     // Return checkout URL for mobile app to open
