@@ -629,6 +629,137 @@ GET /api/payments?page=1&limit=10
 
 ---
 
+### POST /api/payments/paychangu/initiate
+
+Initiate a PayChangu payment for a plan using inline checkout.
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "plan_id": 1,
+  "router_id": 1
+}
+```
+
+**Field Descriptions:**
+- `plan_id` (integer, required): ID of the plan to purchase
+- `router_id` (integer, optional): ID of the router (defaults to radius if not provided)
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "payment_id": 123,
+    "public_key": "pub-test-HYSBQpa5K91mmXMHrjhkmC6mAjObPJ2u",
+    "tx_ref": "INV-1722950000-4567",
+    "amount": 500.00,
+    "currency": "MWK",
+    "callback_url": "http://your-server.com/?_route=callback/paychangu",
+    "return_url": "http://your-server.com/?_route=order/view/123",
+    "customer": {
+      "email": "customer@example.com",
+      "first_name": "John",
+      "last_name": "Doe"
+    },
+    "customization": {
+      "title": "SmartNeti - Payment",
+      "description": "Payment for Daily Hotspot"
+    },
+    "meta": {
+      "invoice_id": 123,
+      "username": "customer_username"
+    }
+  },
+  "message": "Payment initiated successfully"
+}
+```
+
+**Mobile App Integration:**
+Use the returned parameters with PayChangu's inline checkout JavaScript:
+
+```javascript
+<script src="https://in.paychangu.com/js/popup.js"></script>
+
+function makePayment(paymentData) {
+  PaychanguCheckout({
+    "public_key": paymentData.public_key,
+    "tx_ref": paymentData.tx_ref,
+    "amount": paymentData.amount,
+    "currency": paymentData.currency,
+    "callback_url": paymentData.callback_url,
+    "return_url": paymentData.return_url,
+    "customer": paymentData.customer,
+    "customization": paymentData.customization,
+    "meta": paymentData.meta
+  });
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "message": "Plan ID is required"
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "success": false,
+  "message": "Plan not found"
+}
+```
+
+---
+
+### GET /api/payments/:id/status
+
+Check the status of a payment (for polling payment completion).
+
+**Authentication:** Required
+
+**URL Parameters:**
+- `id` (integer): Payment ID from the initiate response
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "payment_id": 123,
+    "tx_ref": "INV-1722950000-4567",
+    "amount": 500.00,
+    "plan_name": "Daily Hotspot",
+    "status": "paid",
+    "created_date": "2026-08-06 14:30:00",
+    "paid_date": "2026-08-06 14:35:00"
+  }
+}
+```
+
+**Status Values:**
+- `unpaid`: Payment not yet completed
+- `paid`: Payment successfully completed
+- `failed`: Payment failed
+- `canceled`: Payment canceled
+- `unknown`: Invalid status
+
+**Note:** If the payment status is `unpaid`, the endpoint will verify with PayChangu API and update the status if the payment was successful.
+
+**Error Response (404):**
+```json
+{
+  "success": false,
+  "message": "Payment not found"
+}
+```
+
+---
+
 ### GET /api/support
 
 Get customer support and contact information.

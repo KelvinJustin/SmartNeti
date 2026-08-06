@@ -78,7 +78,14 @@ switch ($endpoint) {
         require_once __DIR__ . '/endpoints/balance.php';
         break;
     case 'payments':
-        require_once __DIR__ . '/endpoints/payments.php';
+        // Check for nested routes
+        if (isset($segments[1]) && $segments[1] === 'paychangu') {
+            require_once __DIR__ . '/endpoints/payments-paychangu.php';
+        } else if (isset($segments[1]) && isset($segments[2]) && $segments[2] === 'status') {
+            require_once __DIR__ . '/endpoints/payments-paychangu.php';
+        } else {
+            require_once __DIR__ . '/endpoints/payments.php';
+        }
         break;
     case 'support':
         require_once __DIR__ . '/endpoints/support.php';
