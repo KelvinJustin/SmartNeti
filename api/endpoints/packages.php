@@ -19,12 +19,52 @@ if (!$customer) {
 
 $accountType = $customer['account_type'] ?? 'Personal';
 
-// Get enabled plans for customer's account type
-$plans = ORM::for_table('tbl_plans')
-    ->where('enabled', '1')
-    ->where('prepaid', 'yes')
-    ->where('plan_type', $accountType)
-    ->find_many();
+// Get router parameter from query string
+$routerId = isset($_GET['router_id']) ? $_GET['router_id'] : null;
+
+// Get plans based on router logic (matching web app)
+if ($routerId == 'radius' || $routerId === null) {
+    // Radius plans
+    $plans_pppoe = ORM::for_table('tbl_plans')
+        ->where('plan_type', $accountType)
+        ->where('enabled', '1')
+        ->where('is_radius', 1)
+        ->where('type', 'PPPOE')
+        ->where('prepaid', 'yes')
+        ->find_many();
+    $plans_hotspot = ORM::for_table('tbl_plans')
+        ->where('plan_type', $accountType)
+        ->where('enabled', '1')
+        ->where('is_radius', 1)
+        ->where('type', 'Hotspot')
+        ->where('prepaid', 'yes')
+        ->find_many();
+    $plans = array_merge($plans_pppoe, $plans_hotspot);
+} else {
+    // Specific router plans
+    $router = ORM::for_table('tbl_routers')->find_one($routerId);
+    if ($router) {
+        $plans_pppoe = ORM::for_table('tbl_plans')
+            ->where('plan_type', $accountType)
+            ->where('enabled', '1')
+            ->where('routers', $router['name'])
+            ->where('is_radius', 0)
+            ->where('type', 'PPPOE')
+            ->where('prepaid', 'yes')
+            ->find_many();
+        $plans_hotspot = ORM::for_table('tbl_plans')
+            ->where('plan_type', $accountType)
+            ->where('enabled', '1')
+            ->where('routers', $router['name'])
+            ->where('is_radius', 0)
+            ->where('type', 'Hotspot')
+            ->where('prepaid', 'yes')
+            ->find_many();
+        $plans = array_merge($plans_pppoe, $plans_hotspot);
+    } else {
+        $plans = [];
+    }
+}
 
 $packagesData = [];
 foreach ($plans as $plan) {
