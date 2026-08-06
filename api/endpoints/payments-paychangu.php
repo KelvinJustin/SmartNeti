@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Log for debugging
     _log("PayChangu API Response: HTTP $httpCode, Response: " . $response);
 
-    if ($httpCode !== 200 || !isset($responseData->data->checkout_url)) {
+    if (($httpCode !== 200 && $httpCode !== 201) || !isset($responseData->data->checkout_url)) {
         $errorMsg = 'Failed to create payment session. HTTP: ' . $httpCode . ', Response: ' . $response;
         sendJsonResponse(false, null, $errorMsg, 500);
     }
