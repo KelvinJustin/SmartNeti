@@ -22,86 +22,93 @@ $accountType = $customer['account_type'] ?? 'Personal';
 // Get router parameter from query string
 $routerId = isset($_GET['router_id']) ? $_GET['router_id'] : null;
 
-// Get plans based on router logic (matching web app)
+// Initialize plan arrays
+$radius_pppoe = [];
+$radius_hotspot = [];
+$plans_pppoe = [];
+$plans_hotspot = [];
+$plans_vpn = [];
+$routers = [];
+
+// Get plans based on router logic (matching web app order.php)
 if ($routerId == 'radius') {
     // Only radius plans
-    $plans_pppoe = ORM::for_table('tbl_plans')
-        ->where('plan_type', $accountType)
-        ->where('enabled', '1')
-        ->where('is_radius', 1)
-        ->where('type', 'PPPOE')
-        ->where('prepaid', 'yes')
-        ->find_array();
-    $plans_hotspot = ORM::for_table('tbl_plans')
-        ->where('plan_type', $accountType)
-        ->where('enabled', '1')
-        ->where('is_radius', 1)
-        ->where('type', 'Hotspot')
-        ->where('prepaid', 'yes')
-        ->find_array();
-    $plans = array_merge($plans_pppoe, $plans_hotspot);
-} elseif ($routerId === null) {
-    // No router specified - show all plans (radius + non-radius)
     $radius_pppoe = ORM::for_table('tbl_plans')
         ->where('plan_type', $accountType)
         ->where('enabled', '1')
         ->where('is_radius', 1)
         ->where('type', 'PPPOE')
         ->where('prepaid', 'yes')
-        ->find_array();
+        ->find_many();
     $radius_hotspot = ORM::for_table('tbl_plans')
         ->where('plan_type', $accountType)
         ->where('enabled', '1')
         ->where('is_radius', 1)
         ->where('type', 'Hotspot')
         ->where('prepaid', 'yes')
-        ->find_array();
+        ->find_many();
+    $plans = array_merge($radius_pppoe, $radius_hotspot);
+} elseif ($routerId === null) {
+    // No router specified - show all plans (radius + non-radius) - matching web app logic
+    $radius_pppoe = ORM::for_table('tbl_plans')
+        ->where('plan_type', $accountType)
+        ->where('enabled', '1')
+        ->where('is_radius', 1)
+        ->where('type', 'PPPOE')
+        ->where('prepaid', 'yes')
+        ->find_many();
+    $radius_hotspot = ORM::for_table('tbl_plans')
+        ->where('plan_type', $accountType)
+        ->where('enabled', '1')
+        ->where('is_radius', 1)
+        ->where('type', 'Hotspot')
+        ->where('prepaid', 'yes')
+        ->find_many();
+
+    $routers = ORM::for_table('tbl_routers')->find_many();
     $plans_pppoe = ORM::for_table('tbl_plans')
         ->where('plan_type', $accountType)
         ->where('enabled', '1')
         ->where('is_radius', 0)
         ->where('type', 'PPPOE')
         ->where('prepaid', 'yes')
-        ->find_array();
+        ->find_many();
     $plans_hotspot = ORM::for_table('tbl_plans')
         ->where('plan_type', $accountType)
         ->where('enabled', '1')
         ->where('is_radius', 0)
         ->where('type', 'Hotspot')
         ->where('prepaid', 'yes')
-        ->find_array();
+        ->find_many();
     $plans_vpn = ORM::for_table('tbl_plans')
         ->where('plan_type', $accountType)
         ->where('enabled', '1')
         ->where('is_radius', 0)
         ->where('type', 'VPN')
         ->where('prepaid', 'yes')
-        ->find_array();
+        ->find_many();
     $plans = array_merge($radius_pppoe, $radius_hotspot, $plans_pppoe, $plans_hotspot, $plans_vpn);
 } else {
     // Specific router plans
-    $routers = ORM::for_table('tbl_routers')->where('id', $routerId)->find_many();
-    $rs = [];
-    foreach ($routers as $r) {
-        $rs[] = $r['name'];
-    }
-    if (!empty($rs)) {
+    $router = ORM::for_table('tbl_routers')->find_one($routerId);
+    if ($router) {
+        $routers = [$router];
         $plans_pppoe = ORM::for_table('tbl_plans')
             ->where('plan_type', $accountType)
             ->where('enabled', '1')
-            ->where_in('routers', $rs)
+            ->where('routers', $router['name'])
             ->where('is_radius', 0)
             ->where('type', 'PPPOE')
             ->where('prepaid', 'yes')
-            ->find_array();
+            ->find_many();
         $plans_hotspot = ORM::for_table('tbl_plans')
             ->where('plan_type', $accountType)
             ->where('enabled', '1')
-            ->where_in('routers', $rs)
+            ->where('routers', $router['name'])
             ->where('is_radius', 0)
             ->where('type', 'Hotspot')
             ->where('prepaid', 'yes')
-            ->find_array();
+            ->find_many();
         $plans = array_merge($plans_pppoe, $plans_hotspot);
     } else {
         $plans = [];
@@ -135,6 +142,7 @@ foreach ($plans as $plan) {
             'rate_up_unit' => $bandwidth['rate_up_unit']
         ] : null,
         'is_radius' => (bool)$plan['is_radius'],
+        'routers' => $plan['routers'] ?: null,
         'account_type' => $plan['plan_type']
     ];
 }
