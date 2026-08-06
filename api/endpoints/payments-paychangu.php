@@ -69,20 +69,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $firstName = $nameParts[0] ?? '';
     $lastName = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : '';
 
-    // Return PayChangu inline checkout parameters
-    sendJsonResponse(true, [
-        'payment_id' => (int)$trx->id(),
-        'public_key' => $paychanguConfig['paychangu_public_key'],
-        'tx_ref' => $tx_ref,
-        'amount' => (float)$plan['price'],
+    // Call PayChangu Standard Checkout API
+    $paymentUrl = 'https://api.paychangu.com/payment';
+    $paymentData = [
+        'amount' => (string)$plan['price'],
         'currency' => $paychanguConfig['paychangu_currency'] ?? 'MWK',
+        'email' => $user['email'],
+        'first_name' => $firstName,
+        'last_name' => $lastName,
         'callback_url' => $baseUrl . '/?_route=callback/paychangu',
         'return_url' => $baseUrl . '/?_route=order/view/' . $trx->id(),
-        'customer' => [
-            'email' => $user['email'],
-            'first_name' => $firstName,
-            'last_name' => $lastName
-        ],
+        'tx_ref' => $tx_ref,
         'customization' => [
             'title' => 'SmartNeti - Payment',
             'description' => 'Payment for ' . $plan['name_plan']
@@ -91,6 +88,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'invoice_id' => $trx->id(),
             'username' => $user['username']
         ]
+    ];
+
+    $curl = curl_init();
+    curl_setopt_array($curl, [
+        CURLOPT_URL => $paymentUrl,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $paychanguConfig['paychangu_secret_key']
+        ],
+        CURLOPT_POSTFIELDS => json_encode($paymentData)
+    ]);
+    $response = curl_exec($curl);
+    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+
+    $responseData = json_decode($response);
+
+    if ($httpCode !== 200 || !isset($responseData->data->checkout_url)) {
+        sendJsonResponse(false, null, 'Failed to create payment session: ' . ($responseData->message ?? 'Unknown error'), 500);
+    }
+
+    // Return checkout URL for mobile app to open
+    sendJsonResponse(true, [
+        'payment_id' => (int)$trx->id(),
+        'checkout_url' => $responseData->data->checkout_url,
+        'tx_ref' => $tx_ref,
+        'amount' => (float)$plan['price'],
+        'currency' => $paychanguConfig['paychangu_currency'] ?? 'MWK'
     ], 'Payment initiated successfully');
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {

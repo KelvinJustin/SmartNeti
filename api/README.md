@@ -631,7 +631,7 @@ GET /api/payments?page=1&limit=10
 
 ### POST /api/payments/paychangu/initiate
 
-Initiate a PayChangu payment for a plan using inline checkout.
+Initiate a PayChangu payment for a plan using Standard Checkout.
 
 **Authentication:** Required
 
@@ -653,50 +653,27 @@ Initiate a PayChangu payment for a plan using inline checkout.
   "success": true,
   "data": {
     "payment_id": 123,
-    "public_key": "pub-test-HYSBQpa5K91mmXMHrjhkmC6mAjObPJ2u",
+    "checkout_url": "https://checkout.paychangu.com/923677185321",
     "tx_ref": "INV-1722950000-4567",
     "amount": 500.00,
-    "currency": "MWK",
-    "callback_url": "http://your-server.com/?_route=callback/paychangu",
-    "return_url": "http://your-server.com/?_route=order/view/123",
-    "customer": {
-      "email": "customer@example.com",
-      "first_name": "John",
-      "last_name": "Doe"
-    },
-    "customization": {
-      "title": "SmartNeti - Payment",
-      "description": "Payment for Daily Hotspot"
-    },
-    "meta": {
-      "invoice_id": 123,
-      "username": "customer_username"
-    }
+    "currency": "MWK"
   },
   "message": "Payment initiated successfully"
 }
 ```
 
 **Mobile App Integration:**
-Use the returned parameters with PayChangu's inline checkout JavaScript:
+Open the returned `checkout_url` in a web view or browser to complete payment:
 
 ```javascript
-<script src="https://in.paychangu.com/js/popup.js"></script>
-
-function makePayment(paymentData) {
-  PaychanguCheckout({
-    "public_key": paymentData.public_key,
-    "tx_ref": paymentData.tx_ref,
-    "amount": paymentData.amount,
-    "currency": paymentData.currency,
-    "callback_url": paymentData.callback_url,
-    "return_url": paymentData.return_url,
-    "customer": paymentData.customer,
-    "customization": paymentData.customization,
-    "meta": paymentData.meta
-  });
+// After receiving the checkout_url from the API
+function makePayment(checkoutUrl) {
+  // Open checkout URL in web view or browser
+  window.open(checkoutUrl, '_blank');
 }
 ```
+
+After payment completion, the user will be redirected to the callback_url, and you can use the status polling endpoint to check payment status.
 
 **Error Response (400):**
 ```json
