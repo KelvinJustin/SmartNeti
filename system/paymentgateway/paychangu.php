@@ -431,27 +431,38 @@ function paychangu_verify_transaction($tx_ref, $expected_amount = null, $expecte
 
 /**
  * Background job to check pending transactions (webhook fallback)
- * This should be called periodically (e.g., every hour) via cron job
+ * This should be called periodically (e.g., every 5-15 minutes) via cron job
  * to catch any payments where webhooks failed
+ * 
+ * Includes rate limiting to avoid API rate limits
  */
 function paychangu_check_pending_transactions()
 {
   global $config;
   
   // Find pending PayChangu transactions that are not expired
+  // Limit to most recent 20 transactions to avoid rate limiting
   $pendingTransactions = ORM::for_table('tbl_payment_gateway')
     ->where('gateway', 'PayChangu')
     ->where('status', 1) // Pending status
     ->where_gt('expired_date', date('Y-m-d H:i:s'))
+    ->order_by_desc('id')
+    ->limit(20)
     ->find_many();
   
   $processed_count = 0;
+  $total_count = count($pendingTransactions);
   
-  foreach ($pendingTransactions as $trx) {
+  foreach ($pendingTransactions as $index => $trx) {
     $tx_ref = $trx['gateway_trx_id'];
     
     if (empty($tx_ref)) {
       continue;
+    }
+    
+    // Rate limiting: add delay between API calls if processing multiple transactions
+    if ($index > 0) {
+      usleep(500000); // 0.5 second delay between API calls
     }
     
     // Verify transaction status
@@ -483,8 +494,13 @@ function paychangu_check_pending_transactions()
   }
   
   if ($processed_count > 0) {
-    _log("PayChangu Background Job: Processed " . $processed_count . " pending transactions");
+    _log("PayChangu Background Job: Processed " . $processed_count . " out of " . $total_count . " pending transactions");
     sendTelegram("PayChangu Background Job: Successfully processed " . $processed_count . " pending transactions");
+  }
+  
+  // If we hit the limit, there might be more pending transactions
+  if ($total_count >= 20) {
+    _log("PayChangu Background Job: Hit transaction limit (20). There may be more pending transactions.");
   }
   
   return $processed_count;
