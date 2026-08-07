@@ -255,8 +255,16 @@ function paychangu_payment_notification()
     exit;
   }
   
-  // Verify transaction with PayChangu API before processing
-  $verified = paychangu_verify_transaction($tx_ref);
+  // Idempotency check - if already processed, return success
+  if ($trx['status'] == 2) {
+    _log("PayChangu Webhook: Transaction already processed - tx_ref: " . $tx_ref);
+    http_response_code(200);
+    echo json_encode(['status' => 'success', 'message' => 'Transaction already processed']);
+    exit;
+  }
+  
+  // Verify transaction with PayChangu API before processing (comprehensive verification)
+  $verified = paychangu_verify_transaction($tx_ref, $trx['price'], $config['paychangu_currency'] ?: 'MWK');
   
   if ($verified && $status == 'success') {
     $user = ORM::for_table('tbl_customers')
@@ -312,8 +320,13 @@ function paychangu_callback()
     r2(U . 'order/package', 'e', Lang::T("Transaction not found"));
   }
 
-  // Verify transaction with PayChangu API
-  $verified = paychangu_verify_transaction($tx_ref);
+  // Idempotency check - if already processed, redirect to success page
+  if ($trx['status'] == 2) {
+    r2(U . "order/view/" . $trx['id'], 's', Lang::T("Transaction already processed."));
+  }
+
+  // Verify transaction with PayChangu API (comprehensive verification)
+  $verified = paychangu_verify_transaction($tx_ref, $trx['price'], $config['paychangu_currency'] ?: 'MWK');
 
   if ($verified) {
     // Payment successful - activate service
@@ -343,7 +356,7 @@ function paychangu_callback()
 }
 
 
-function paychangu_verify_transaction($tx_ref)
+function paychangu_verify_transaction($tx_ref, $expected_amount = null, $expected_currency = 'MWK')
 {
   global $config;
 
@@ -371,10 +384,110 @@ function paychangu_verify_transaction($tx_ref)
   fclose($log);
 
   if (isset($responseData->status) && $responseData->status == 'success' && isset($responseData->data->status)) {
-    return $responseData->data->status == 'success';
+    // Comprehensive verification as per PayChangu recommendations
+    $paymentData = $responseData->data;
+    
+    // 1. Verify status is success
+    if ($paymentData->status != 'success') {
+      _log("PayChangu Verification failed: Status not successful - " . $paymentData->status);
+      return false;
+    }
+    
+    // 2. Verify transaction reference matches (if we have the original)
+    if (isset($paymentData->tx_ref) && $paymentData->tx_ref != $tx_ref) {
+      _log("PayChangu Verification failed: TX_REF mismatch - Expected: " . $tx_ref . ", Got: " . $paymentData->tx_ref);
+      return false;
+    }
+    
+    // 3. Verify currency matches expected
+    if ($expected_currency && isset($paymentData->currency) && $paymentData->currency != $expected_currency) {
+      _log("PayChangu Verification failed: Currency mismatch - Expected: " . $expected_currency . ", Got: " . $paymentData->currency);
+      return false;
+    }
+    
+    // 4. Verify amount is greater than or equal to expected amount
+    if ($expected_amount && isset($paymentData->amount)) {
+      $paidAmount = floatval($paymentData->amount);
+      $expectedAmount = floatval($expected_amount);
+      
+      if ($paidAmount < $expectedAmount) {
+        _log("PayChangu Verification failed: Insufficient amount - Expected: " . $expected_amount . ", Got: " . $paidAmount);
+        return false;
+      }
+      
+      // Log if amount is greater (for potential refund)
+      if ($paidAmount > $expectedAmount) {
+        _log("PayChangu Verification: Amount greater than expected - Expected: " . $expected_amount . ", Got: " . $paidAmount . " (may need refund)");
+      }
+    }
+    
+    return true;
   }
 
+  _log("PayChangu Verification failed: Invalid API response - HTTP Code: " . $httpCode);
   return false;
+}
+
+
+/**
+ * Background job to check pending transactions (webhook fallback)
+ * This should be called periodically (e.g., every hour) via cron job
+ * to catch any payments where webhooks failed
+ */
+function paychangu_check_pending_transactions()
+{
+  global $config;
+  
+  // Find pending PayChangu transactions that are not expired
+  $pendingTransactions = ORM::for_table('tbl_payment_gateway')
+    ->where('gateway', 'PayChangu')
+    ->where('status', 1) // Pending status
+    ->where_gt('expired_date', date('Y-m-d H:i:s'))
+    ->find_many();
+  
+  $processed_count = 0;
+  
+  foreach ($pendingTransactions as $trx) {
+    $tx_ref = $trx['gateway_trx_id'];
+    
+    if (empty($tx_ref)) {
+      continue;
+    }
+    
+    // Verify transaction status
+    $verified = paychangu_verify_transaction($tx_ref, $trx['price'], $config['paychangu_currency'] ?: 'MWK');
+    
+    if ($verified) {
+      // Process the payment
+      $user = ORM::for_table('tbl_customers')
+        ->where('username', $trx['username'])
+        ->find_one();
+      
+      if ($user) {
+        if (!Package::rechargeUser($user['id'], $trx['routers'], $trx['plan_id'], $trx['gateway'], 'PayChangu')) {
+          _log("PayChangu Background Job: Payment verification successful, but failed to activate package for user: " . $user['username']);
+          sendTelegram("PayChangu Background Job: Payment activation failed for user: " . $user['username']);
+        } else {
+          _log("PayChangu Background Job: Payment verification successful and package activated for user: " . $user['username']);
+          $processed_count++;
+          
+          // Update transaction record
+          $trx->status = 2;
+          $trx->paid_date = date('Y-m-d H:i:s');
+          $trx->payment_method = 'PayChangu';
+          $trx->payment_channel = 'Background Verification';
+          $trx->save();
+        }
+      }
+    }
+  }
+  
+  if ($processed_count > 0) {
+    _log("PayChangu Background Job: Processed " . $processed_count . " pending transactions");
+    sendTelegram("PayChangu Background Job: Successfully processed " . $processed_count . " pending transactions");
+  }
+  
+  return $processed_count;
 }
 
 
@@ -383,7 +496,7 @@ function paychangu_get_status($trx, $user)
   global $config;
 
   $tx_ref = $trx['gateway_trx_id'];
-  $verified = paychangu_verify_transaction($tx_ref);
+  $verified = paychangu_verify_transaction($tx_ref, $trx['price'], $config['paychangu_currency'] ?: 'MWK');
 
   if ($verified) {
     // Check if already processed
