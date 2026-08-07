@@ -113,6 +113,8 @@ function paychangu_create_transaction($trx, $user)
 {
   global $config, $routes;
 
+  _log("PayChangu: Creating transaction for user " . $user['username'] . ", trx_id: " . $trx['id']);
+
   // Generate unique transaction reference
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
 
@@ -142,6 +144,9 @@ function paychangu_create_transaction($trx, $user)
   ];
   
   $payloadJson = json_encode($fields);
+  
+  _log("PayChangu: Calling API with tx_ref: " . $tx_ref . ", amount: " . $trx['price']);
+  
   $curl = curl_init();
   curl_setopt_array($curl, [
     CURLOPT_URL => $url,
@@ -155,12 +160,17 @@ function paychangu_create_transaction($trx, $user)
   ]);
   $response = curl_exec($curl);
   $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+  $curlError = curl_error($curl);
   curl_close($curl);
+  
+  _log("PayChangu: API Response - HTTP Code: " . $httpCode . ", Response: " . $response . ", Curl Error: " . $curlError);
   
   $responseData = json_decode($response);
   
   if (isset($responseData->status) && $responseData->status == 'success' && isset($responseData->data->checkout_url)) {
     $checkout_url = $responseData->data->checkout_url;
+    
+    _log("PayChangu: Payment session created successfully, checkout_url: " . $checkout_url);
     
     // Update transaction record
     $d = ORM::for_table('tbl_payment_gateway')
@@ -175,14 +185,18 @@ function paychangu_create_transaction($trx, $user)
       $d->expired_date = date('Y-m-d H:i:s', strtotime("+30 minutes"));
       $d->save();
       
+      _log("PayChangu: Transaction record updated, redirecting to checkout");
+      
       // Redirect to PayChangu checkout
       header("Location: " . $checkout_url);
       exit;
     } else {
+      _log("PayChangu: ERROR - Transaction record not found for user: " . $user['username']);
       sendTelegram("PayChangu payment failed - Transaction record not found\n\n" . json_encode($responseData, JSON_PRETTY_PRINT));
       r2(U . 'order/package', 'e', Lang::T("Failed to create transaction. Transaction record not found."));
     }
   } else {
+    _log("PayChangu: ERROR - Payment session creation failed");
     sendTelegram("PayChangu payment failed\n\nResponse: " . json_encode($responseData, JSON_PRETTY_PRINT) . "\nHTTP Code: " . $httpCode);
     $errorMessage = isset($responseData->message) ? (is_object($responseData->message) ? json_encode($responseData->message) : $responseData->message) : 'Unknown error';
     r2(U . 'order/package', 'e', Lang::T("Failed to create transaction. " . $errorMessage));
