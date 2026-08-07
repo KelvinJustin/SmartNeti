@@ -116,9 +116,9 @@ function paychangu_create_transaction($trx, $user)
   // Generate unique transaction reference
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
 
-  // Use direct local IP for callback_url and return_url to avoid ngrok warning
-  // Users on local network can access the server directly
-  $local_url = 'http://10.169.159.126';
+  // Use ngrok URL for callback_url to ensure webhooks reach the server
+  // PayChangu needs to reach the callback endpoint from their servers
+  $ngrok_url = 'https://imprecatory-unobligative-genna.ngrok-free.dev';
 
   $url = 'https://api.paychangu.com/payment';
 
@@ -128,8 +128,8 @@ function paychangu_create_transaction($trx, $user)
     'email' => $user['email'] ?: '',
     'first_name' => $user['fullname'] ? explode(' ', $user['fullname'])[0] : '',
     'last_name' => $user['fullname'] ? (count(explode(' ', $user['fullname'])) > 1 ? implode(' ', array_slice(explode(' ', $user['fullname']), 1)) : '') : '',
-    'callback_url' => $local_url . '/?_route=callback/paychangu',
-    'return_url' => $local_url . '/?_route=order/view/' . $trx['id'],
+    'callback_url' => $ngrok_url . '/?_route=callback/paychangu',
+    'return_url' => $ngrok_url . '/?_route=order/view/' . $trx['id'],
     'tx_ref' => $tx_ref,
     'customization' => [
       'title' => $config['CompanyName'] . ' - Payment',
