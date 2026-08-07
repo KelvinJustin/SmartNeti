@@ -204,7 +204,7 @@ class SMS
      */
     public function calculateSegments($message)
     {
-        $length = mb_strlen($message);
+        $length = \mb_strlen($message);
         
         // Check if message contains GSM-7 characters only
         if ($this->isGSM7($message)) {
@@ -235,8 +235,8 @@ class SMS
             '¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà';
         
         // Check each character
-        for ($i = 0; $i < mb_strlen($message); $i++) {
-            $char = mb_substr($message, $i, 1);
+        for ($i = 0; $i < \mb_strlen($message); $i++) {
+            $char = \mb_substr($message, $i, 1);
             
             // Check if character is in GSM-7 charset
             if (strpos($gsm7Chars, $char) === false) {
