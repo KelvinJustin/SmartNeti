@@ -13,8 +13,8 @@ $is_callback = isset($_GET['_route']) && strpos($_GET['_route'], 'callback/paych
 // Use HTTP for local server (HTTPS to HTTP downgrade)
 $protocol = "http://";
 
-// Get the actual server IP - use 192.168.1.164 as it's the actual network IP
-$server_ip = '192.168.1.164';
+// Get the actual server IP - use 10.169.159.126 as it's the actual network IP
+$server_ip = '10.169.159.126';
 
 // Build the redirect URL with explicit slash
 $redirect_url = $protocol . $server_ip . '/';
