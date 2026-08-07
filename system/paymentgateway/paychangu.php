@@ -118,7 +118,7 @@ function paychangu_create_transaction($trx, $user)
 
   // Use direct local IP for callback_url and return_url to avoid ngrok warning
   // Users on local network can access the server directly
-  $local_url = 'http://192.168.1.164';
+  $local_url = 'http://10.169.159.126';
 
   $url = 'https://api.paychangu.com/payment';
 
@@ -194,12 +194,28 @@ function paychangu_payment_notification()
 {
   global $config;
   header("Content-Type: application/json");
-  
+
   $webhookData = file_get_contents('php://input');
+  
+  // Log webhook data to both file and system log
   $logFile = "PayChanguWebhook.json";
-  $log = fopen($logFile, "a");
-  fwrite($log, date('Y-m-d H:i:s') . " - " . $webhookData . "\n");
-  fclose($log);
+  $logEntry = date('Y-m-d H:i:s') . " - " . $webhookData . "\n";
+  
+  // Try to write to file with error handling
+  try {
+    $log = fopen($logFile, "a");
+    if ($log) {
+      fwrite($log, $logEntry);
+      fclose($log);
+    } else {
+      _log("PayChangu Webhook: Failed to open log file for writing");
+    }
+  } catch (Exception $e) {
+    _log("PayChangu Webhook: Exception writing to log file - " . $e->getMessage());
+  }
+  
+  // Also log to system log for redundancy
+  _log("PayChangu Webhook received: " . $webhookData);
   
   // Verify webhook signature
   $headers = getallheaders();
