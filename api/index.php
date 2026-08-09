@@ -5,21 +5,18 @@
  * Customer-facing REST API for Flutter mobile application
  */
 
-// Enable CORS for mobile app
-if ($_SERVER['REQUEST_METHOD'] === "OPTIONS" || $_SERVER['REQUEST_METHOD'] === "HEAD") {
-    header('Access-Control-Allow-Origin: *');
-    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control");
-    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, HEAD");
-    header("Access-Control-Max-Age: 86400");
-    header("HTTP/1.1 200 OK");
-    die();
-}
-
-header('Content-Type: application/json');
+// Set CORS headers FIRST - must be before any other output
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, HEAD');
 header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control');
+header('Access-Control-Max-Age: 86400');
+header('Content-Type: application/json');
+
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === "OPTIONS" || $_SERVER['REQUEST_METHOD'] === "HEAD") {
+    http_response_code(200);
+    exit;
+}
 
 // Enable error logging
 ini_set('error_log', '/var/log/php_errors.log');
