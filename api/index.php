@@ -75,7 +75,12 @@ switch ($endpoint) {
         require_once __DIR__ . '/endpoints/packages.php';
         break;
     case 'balance':
-        require_once __DIR__ . '/endpoints/balance.php';
+        // Check for nested routes
+        if (isset($segments[1]) && $segments[1] === 'transfer') {
+            require_once __DIR__ . '/endpoints/balance-transfer.php';
+        } else {
+            require_once __DIR__ . '/endpoints/balance.php';
+        }
         break;
     case 'payments':
         // Check for nested routes
