@@ -118,9 +118,9 @@ function paychangu_create_transaction($trx, $user)
   // Generate unique transaction reference
   $tx_ref = 'INV-' . $trx['id'] . '-' . time();
 
-  // Use ngrok URL for webhook and callback URLs
-  // webhook_url: Server-to-server notification from PayChangu
-  // callback_url: User redirect after payment completion
+  // Use ngrok URL for webhook and return URLs
+  // callback_url: Server-to-server webhook notification from PayChangu
+  // return_url: User redirect after payment (success/failure)
   $ngrok_url = 'https://imprecatory-unobligative-genna.ngrok-free.dev';
 
   $url = 'https://api.paychangu.com/payment';
@@ -132,7 +132,7 @@ function paychangu_create_transaction($trx, $user)
     'first_name' => $user['fullname'] ? explode(' ', $user['fullname'])[0] : '',
     'last_name' => $user['fullname'] ? (count(explode(' ', $user['fullname'])) > 1 ? implode(' ', array_slice(explode(' ', $user['fullname']), 1)) : '') : '',
     'callback_url' => $ngrok_url . '/?_route=webhook/paychangu',
-    'return_url' => $ngrok_url . '/?_route=callback/paychangu',
+    'return_url' => $ngrok_url . '/?_route=order/view/' . $trx['id'],
     'tx_ref' => $tx_ref,
     'customization' => [
       'title' => $config['CompanyName'] . ' - Payment',
