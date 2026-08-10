@@ -120,7 +120,7 @@ function paychangu_create_transaction($trx, $user)
 
   // Use ngrok URL for webhook and return URLs
   // callback_url: Server-to-server webhook notification from PayChangu
-  // return_url: User redirect after payment (success/failure)
+  // return_url: User redirect after payment (success/failure) - goes to callback for polling
   $ngrok_url = 'https://imprecatory-unobligative-genna.ngrok-free.dev';
 
   $url = 'https://api.paychangu.com/payment';
@@ -132,7 +132,7 @@ function paychangu_create_transaction($trx, $user)
     'first_name' => $user['fullname'] ? explode(' ', $user['fullname'])[0] : '',
     'last_name' => $user['fullname'] ? (count(explode(' ', $user['fullname'])) > 1 ? implode(' ', array_slice(explode(' ', $user['fullname']), 1)) : '') : '',
     'callback_url' => $ngrok_url . '/?_route=webhook/paychangu',
-    'return_url' => $ngrok_url . '/?_route=order/view/' . $trx['id'],
+    'return_url' => $ngrok_url . '/?_route=callback/paychangu',
     'tx_ref' => $tx_ref,
     'customization' => [
       'title' => $config['CompanyName'] . ' - Payment',
@@ -300,6 +300,8 @@ function paychangu_payment_notification()
     $trx->payment_channel = $webhookContent->authorization->channel ?? 'PayChangu Checkout';
     $trx->paid_date = date('Y-m-d H:i:s');
     $trx->status = 2;
+    $trx->webhook_received = 1;
+    $trx->webhook_received_date = date('Y-m-d H:i:s');
     $trx->save();
     
     http_response_code(200);
@@ -335,39 +337,40 @@ function paychangu_callback()
     r2(U . 'order/package', 'e', Lang::T("Transaction not found"));
   }
 
-  // Idempotency check - if already processed, redirect to success page
-  if ($trx['status'] == 2) {
-    r2(U . "order/view/" . $trx['id'], 's', Lang::T("Transaction already processed."));
-  }
+  // Poll for webhook receipt (up to 2 minutes)
+  $max_attempts = 24; // 2 minutes with 5-second intervals
+  $attempt = 0;
+  $webhook_received = false;
 
-  // Verify transaction with PayChangu API (comprehensive verification)
-  $verified = paychangu_verify_transaction($tx_ref, $trx['price'], $config['paychangu_currency'] ?: 'MWK');
+  while ($attempt < $max_attempts && !$webhook_received) {
+    // Reload transaction to check webhook status
+    $trx = ORM::for_table('tbl_payment_gateway')
+      ->where('gateway_trx_id', $tx_ref)
+      ->find_one();
 
-  if ($verified) {
-    // Payment successful - activate service
-    if ($trx['status'] != 2) {
-      $user = ORM::for_table('tbl_customers')
-        ->where('username', $trx['username'])
-        ->find_one();
-
-      if ($user) {
-        if (!Package::rechargeUser($user['id'], $trx['routers'], $trx['plan_id'], $trx['gateway'], 'PayChangu')) {
-          _log("PayChangu Payment Verification Successful, But Failed to activate Package");
-        }
-      }
-
-      $trx->payment_method = 'PayChangu';
-      $trx->paid_date = date('Y-m-d H:i:s');
-      $trx->status = 2;
-      $trx->save();
+    if ($trx && $trx['webhook_received'] == 1) {
+      $webhook_received = true;
+      _log("PayChangu Callback: Webhook received for tx_ref: " . $tx_ref);
+      break;
     }
 
-    // Redirect to order view with success message
-    r2(U . 'order/view/' . $trx['id'], 's', Lang::T("Payment successful. Your service has been activated."));
-  } else {
-    // Payment not successful
-    r2(U . 'order/view/' . $trx['id'], 'w', Lang::T("Payment verification failed. Please try again or contact support."));
+    $attempt++;
+    if ($attempt < $max_attempts) {
+      sleep(5); // Wait 5 seconds before next poll
+    }
   }
+
+  // Get local server IP for redirect
+  $local_ip = '10.169.159.126';
+  $invoice_id = $trx['id'];
+
+  // Redirect to local IP with invoice ID as identifier
+  $redirect_url = "http://" . $local_ip . "/?_route=order/view/" . $invoice_id . "&tx_ref=" . $tx_ref;
+
+  _log("PayChangu Callback: Redirecting to local IP - webhook received: " . ($webhook_received ? 'yes' : 'no'));
+
+  header("Location: " . $redirect_url);
+  exit;
 }
 
 
