@@ -645,6 +645,20 @@ switch ($action) {
                 }
                 // Tax calculation stop
                 if (empty($id)) {
+                    // Check for existing pending transaction for same plan and gateway
+                    $existingTrx = ORM::for_table('tbl_payment_gateway')
+                        ->where('username', $user['username'])
+                        ->where('gateway', $gateway)
+                        ->where('plan_id', $plan['id'])
+                        ->where('status', 1) // Pending status
+                        ->where_gt('expired_date', date('Y-m-d H:i:s'))
+                        ->find_one();
+                    
+                    if ($existingTrx) {
+                        // User already has a pending transaction for this plan
+                        r2(getUrl('order/view/') . $existingTrx['id'], 'w', Lang::T("You already have a pending payment for this plan. Please complete or cancel it before creating a new one."));
+                    }
+                    
                     $d = ORM::for_table('tbl_payment_gateway')->create();
                     $d->username = $user['username'];
                     $d->user_id = $user['id'];
