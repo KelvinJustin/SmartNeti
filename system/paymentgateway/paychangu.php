@@ -360,14 +360,49 @@ function paychangu_callback()
     }
   }
 
+  // If webhook not received, verify payment directly with PayChangu API
+  if (!$webhook_received) {
+    _log("PayChangu Callback: Webhook not received, verifying directly with API for tx_ref: " . $tx_ref);
+    
+    $verified = paychangu_verify_transaction($tx_ref, $trx['price'], $config['paychangu_currency'] ?: 'MWK');
+    
+    if ($verified) {
+      // Process the payment
+      $user = ORM::for_table('tbl_customers')
+        ->where('username', $trx['username'])
+        ->find_one();
+      
+      if ($user) {
+        if (!Package::rechargeUser($user['id'], $trx['routers'], $trx['plan_id'], $trx['gateway'], 'PayChangu')) {
+          _log("PayChangu Callback: Payment verified but failed to activate package for user: " . $user['username']);
+          sendTelegram("PayChangu Callback: Payment activation failed for user: " . $user['username']);
+        } else {
+          _log("PayChangu Callback: Payment verified and package activated for user: " . $user['username']);
+        }
+      }
+
+      // Update transaction record
+      $trx->payment_method = 'PayChangu';
+      $trx->paid_date = date('Y-m-d H:i:s');
+      $trx->status = 2;
+      $trx->webhook_received = 1; // Mark as processed even though webhook didn't arrive
+      $trx->webhook_received_date = date('Y-m-d H:i:s');
+      $trx->save();
+      
+      _log("PayChangu Callback: Payment processed via direct verification");
+    } else {
+      _log("PayChangu Callback: Payment verification failed - tx_ref: " . $tx_ref);
+    }
+  }
+
   // Get local server IP for redirect
-  $local_ip = '10.169.159.126';
+  $local_ip = '10.129.170.126';
   $invoice_id = $trx['id'];
 
   // Redirect to local IP with invoice ID as identifier
   $redirect_url = "http://" . $local_ip . "/?_route=order/view/" . $invoice_id . "&tx_ref=" . $tx_ref;
 
-  _log("PayChangu Callback: Redirecting to local IP - webhook received: " . ($webhook_received ? 'yes' : 'no'));
+  _log("PayChangu Callback: Redirecting to local IP - webhook received: " . ($webhook_received ? 'yes' : 'no (verified directly)'));
 
   header("Location: " . $redirect_url);
   exit;
