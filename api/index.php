@@ -72,6 +72,9 @@ switch ($endpoint) {
     case 'profile':
         require_once __DIR__ . '/endpoints/profile.php';
         break;
+    case 'change-password':
+        require_once __DIR__ . '/endpoints/change-password.php';
+        break;
     case 'packages':
         require_once __DIR__ . '/endpoints/packages.php';
         break;

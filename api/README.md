@@ -332,6 +332,87 @@ Update customer profile information.
 
 ---
 
+### POST /api/change-password
+
+Change user password.
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "current_password": "current_password",
+  "new_password": "new_password",
+  "confirm_password": "new_password"
+}
+```
+
+**Field Descriptions:**
+- `current_password` (required): Current password for verification
+- `new_password` (required): New password (3-35 characters)
+- `confirm_password` (required): New password confirmation (must match new_password)
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Password changed successfully"
+  },
+  "message": "Password changed successfully"
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "message": "Current password, new password, and confirm password are required"
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "message": "New password should be between 3 to 35 characters"
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "message": "New password and confirm password do not match"
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "message": "New password cannot be the same as current password"
+}
+```
+
+**Error Response (401):**
+```json
+{
+  "success": false,
+  "message": "Current password is incorrect"
+}
+```
+
+**Error Response (401):**
+```json
+{
+  "success": false,
+  "message": "Unauthorized or invalid token"
+}
+```
+
+---
+
 ### GET /api/subscriptions
 
 Get customer subscriptions including active and inactive plans.
