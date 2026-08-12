@@ -18,7 +18,32 @@ require_once dirname(__FILE__) . '/../../init.php';
 // Load the PayChangu payment gateway
 require_once dirname(__FILE__) . '/paychangu.php';
 
-// Check if there are any pending transactions before making API calls
+// Step 1: Mark expired transactions as failed
+$expiredCount = ORM::for_table('tbl_payment_gateway')
+    ->where('gateway', 'PayChangu')
+    ->where('status', 1) // Pending status
+    ->where_lt('expired_date', date('Y-m-d H:i:s'))
+    ->count();
+
+if ($expiredCount > 0) {
+    echo "Found $expiredCount expired PayChangu transactions. Marking as failed...\n";
+    
+    $expiredTransactions = ORM::for_table('tbl_payment_gateway')
+        ->where('gateway', 'PayChangu')
+        ->where('status', 1)
+        ->where_lt('expired_date', date('Y-m-d H:i:s'))
+        ->find_many();
+    
+    foreach ($expiredTransactions as $trx) {
+        $trx->status = 3; // Failed status
+        $trx->save();
+        _log("PayChangu Cron: Marked expired transaction as failed - ID: " . $trx['id'] . ", Username: " . $trx['username']);
+    }
+    
+    echo "Marked $expiredCount expired transactions as failed.\n";
+}
+
+// Step 2: Check if there are any pending transactions before making API calls
 $pendingCount = ORM::for_table('tbl_payment_gateway')
     ->where('gateway', 'PayChangu')
     ->where('status', 1) // Pending status
